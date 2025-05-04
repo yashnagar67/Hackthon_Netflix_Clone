@@ -1,0 +1,386 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Netflix-specific styles */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #141414;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* Progress Bar Animation */
+@keyframes progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 30s linear forwards;
+}
+
+/* Enhanced trailer animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1); 
+  }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(15px); 
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* Softer animations with better easing */
+.soft-transition {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Navbar styles */
+header {
+  height: 68px;
+  padding: 0 4%;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+/* Netflix logo */
+.text-red-600 {
+  color: #e50914 !important;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+/* Navigation links */
+nav a {
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+/* Search input */
+input[type="text"] {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  padding: 8px 10px !important;
+  font-size: 14px !important;
+  width: 240px !important;
+  transition: all 0.3s ease !important;
+}
+
+input[type="text"]:focus {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Profile avatar */
+.w-8.h-8 {
+  border-radius: 4px !important;
+  border: 2px solid transparent !important;
+  transition: border-color 0.3s ease !important;
+}
+
+.w-8.h-8:hover {
+  border-color: #fff !important;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.mobile-menu nav a {
+  padding: 12px 16px !important;
+  font-size: 16px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Scroll behavior */
+header {
+  transition: transform 0.3s ease, background-color 0.3s ease !important;
+}
+
+/* Gradient overlay */
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 10%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+header.scrolled::before {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  header {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  .text-red-600 {
+    font-size: 24px;
+  }
+}
+
+/* Remove default button styles */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Remove default link styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Remove default focus styles */
+*:focus {
+  outline: none;
+}
+/* Add these styles to your index.css file */
+
+/* Netflix progress bar animation */
+@keyframes progressAnimation {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+.animate-progress-netflix {
+  animation: progressAnimation 30s linear forwards;
+}
+
+/* Additional animation for improved trailer loading */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+/* Scale utilities if not already defined by Tailwind */
+.scale-95 {
+  transform: scale(0.95);
+}
+
+.scale-100 {
+  transform: scale(1);
+}
+
+.scale-\[1\.25\] {
+  transform: scale(1.25);
+}
+
+/* Custom Netflix-specific styles */
+.netflix-card-hover {
+  transition: transform 450ms cubic-bezier(0.21, 0.68, 0.36, 0.96);
+  position: relative;
+  z-index: 1;
+  margin-right: 4px;
+}
+
+.netflix-card-hover:hover {
+  transform: scale(1.05);
+  z-index: 50;
+}
+
+/* Apply a subtle shadow on hover */
+.netflix-card-hover:hover div {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+/* Netflix popup animation */
+.netflix-popup {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  animation: fadeIn 300ms ease-in-out forwards;
+  transform-origin: center top;
+  z-index: 1000;
+}
+
+/* Animation for trailer popup */
+.animate-fade-in {
+  animation: fadeIn 300ms ease-in-out forwards;
+}
+
+/* Smooth line clamp for movie descriptions */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Custom Netflix loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Improved overlay for hover effects */
+.overlay-gradient {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.3) 100%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.overlay-gradient:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustments for movie cards */
+@media (max-width: 768px) {
+  .netflix-card-hover:hover {
+    transform: scale(1.03); /* Smaller scale on mobile */
+  }
+}
+
+/* Additional visibility utilities if needed */
+.invisible {
+  visibility: hidden;
+}
+
+.visible {
+  visibility: visible;
+}
+
+/* Z-index utilities */
+.z-0 {
+  z-index: 0;
+}
+
+.z-10 {
+  z-index: 10;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.z-\[1000\] {
+  z-index: 1000;
+}
+
+/* Line clamp for Netflix descriptions */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Truncate text */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Additional utilities that might be needed */
+.aspect-\[16\/9\] {
+  aspect-ratio: 16/9;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* Transition utilities */
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+/* Position utilities */
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Opacity utilities */
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
