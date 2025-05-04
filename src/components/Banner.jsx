@@ -22,23 +22,83 @@ const movies = [
     origin: "Made in U.S."
   },
   {
-    id: 2,
-    title: "The Crown",
-    desktopImage: "https://image.tmdb.org/t/p/original/8VXhcrl5z2I1zEU9X3pkkNrZlD.jpg",
+    id: 4,
+    title: "Squid Game",
+    desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/hOsTmukXHBNsxbTfwGYTzMTOkS1.jpg",
     mobileImage: "/api/placeholder/800/1200",
     logoImage: "/api/placeholder/300/120",
-    videoPreview: "Chhaava.mp4",
-    description: "This drama follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the 20th century.",
-    rating: 8.9,
-    year: "2016",
+    videoPreview: "Squid_games.mp4",
+    description: "Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits — with deadly high stakes.",
+    rating: 8.1,
+    year: "2021",
     maturityRating: "TV-MA",
-    seasons: 5,
+    seasons: 1,
     topTen: true,
-    genre: ["Historical Drama", "Political"],
-    tags: ["Emotional", "Period Piece", "Based on Real Life"],
-    matchPercentage: 95,
-    origin: "Made in U.K."
-  }
+    genre: ["Thriller", "Drama", "Survival"],
+    tags: ["Suspenseful", "Intense", "Social Commentary"],
+    matchPercentage: 94,
+    origin: "Made in South Korea"
+  },
+  // Stranger Things
+{
+  id: 2,
+  title: "Stranger Things",
+  desktopImage: "https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+  mobileImage: "/api/placeholder/800/1200",
+  logoImage: "/api/placeholder/300/120",
+  videoPreview: "Stanger_things.mp4",
+  description: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.",
+  rating: 8.7,
+  year: "2016",
+  maturityRating: "TV-14",
+  seasons: 4,
+  topTen: true,
+  genre: ["Sci-Fi", "Horror", "Drama"],
+  tags: ["Suspenseful", "Nostalgic", "Ensemble Cast"],
+  matchPercentage: 97,
+  origin: "Made in U.S."
+},
+
+// Money Heist
+{
+  id: 3,
+  title: "Money Heist",
+  desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/mxFvdWtK26oR7jR8suZKro6GT9U.jpg",
+  mobileImage: "/api/placeholder/800/1200",
+  logoImage: "/api/placeholder/300/120",
+  videoPreview: "Money_heist.mp4",
+  description: "Eight thieves take hostages and lock themselves in the Royal Mint of Spain as a criminal mastermind manipulates the police to carry out his plan.",
+  rating: 8.3,
+  year: "2017",
+  maturityRating: "TV-MA",
+  seasons: 5,
+  topTen: true,
+  genre: ["Crime", "Thriller", "Drama"],
+  tags: ["Exciting", "Suspenseful", "Heist"],
+  matchPercentage: 96,
+  origin: "Made in Spain"
+},
+
+// Chhava
+{
+  id: 4,
+  title: "Chhava",
+  desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/kKOV3Y3FlWVNzbM7cXKKeN4ZbfW.jpg", // Placeholder image (replace with real one)
+  mobileImage: "/api/placeholder/800/1200",
+  logoImage: "/api/placeholder/300/120",
+  videoPreview: "Chhaava.mp4",
+  description: "An epic historical drama depicting the bravery, leadership, and sacrifice of Chhatrapati Sambhaji Maharaj in the Maratha Empire.",
+  rating: 9.0,
+  year: "2025",
+  maturityRating: "U/A 16+",
+  seasons: 1,
+  topTen: true,
+  genre: ["Historical", "Action", "Drama"],
+  tags: ["Epic", "Based on Real Life", "Period Piece"],
+  matchPercentage: 98,
+  origin: "Made in India"
+}
+
 ];
 
 export default function NetflixBanner() {
@@ -239,7 +299,7 @@ export default function NetflixBanner() {
               muted={isMuted}
               playsInline
               preload="auto"
-              className={`w-full h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`w-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onError={(e) => {
                 console.error("Video error:", e);
                 setIsPlaying(false);

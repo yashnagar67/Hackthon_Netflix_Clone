@@ -5,17 +5,11 @@ import { Play, Info } from 'lucide-react';
 const MovieSuggestionCard = ({ movie, onSelect }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [movieDetails, setMovieDetails] = useState(null);
-  const [trailerUrl, setTrailerUrl] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [trailerLoaded, setTrailerLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [trailerError, setTrailerError] = useState(false);
   const hoverTimeoutRef = useRef(null);
   const popupRef = useRef(null);
   const cardRef = useRef(null);
-  const iframeRef = useRef(null);
-  const trailerTimeoutRef = useRef(null);
 
   // Check if mobile device
   useEffect(() => {
@@ -27,108 +21,31 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Cache trailer URL in sessionStorage to avoid refetching
-  const cacheKey = `movie-trailer-${movie.id}`;
+  // Cache details in sessionStorage to avoid refetching
   const detailsCacheKey = `movie-details-${movie.id}`;
 
-  // Fetch movie details and find best trailer with caching
+  // Fetch movie details with caching
   useEffect(() => {
-    if (isHovered && (!movieDetails || !trailerUrl)) {
+    if (isHovered && !movieDetails) {
       const fetchMovieDetails = async () => {
         try {
           // Check cache first
           const cachedDetails = sessionStorage.getItem(detailsCacheKey);
-          const cachedTrailer = sessionStorage.getItem(cacheKey);
           
-          if (cachedDetails && !movieDetails) {
+          if (cachedDetails) {
             setMovieDetails(JSON.parse(cachedDetails));
-          }
-          
-          if (cachedTrailer && !trailerUrl) {
-            setTrailerUrl(cachedTrailer);
             return;
           }
 
           // Fetch movie details if not in cache
-          if (!cachedDetails) {
-            const detailsResponse = await fetch(
-              `${TMDB_BASE_URL}/movie/${movie.id}?api_key=${TMDB_API_KEY}`
-            );
-            const details = await detailsResponse.json();
-            setMovieDetails(details);
-            sessionStorage.setItem(detailsCacheKey, JSON.stringify(details));
-          }
-
-          // Fetch movie videos if trailer not in cache
-          if (!cachedTrailer) {
-            const videosResponse = await fetch(
-              `${TMDB_BASE_URL}/movie/${movie.id}/videos?api_key=${TMDB_API_KEY}`
-            );
-            const videos = await videosResponse.json();
-            
-            // Enhanced video fallback logic
-            const findBestVideo = () => {
-              // First: Check if we have any results
-              if (!videos.results || videos.results.length === 0) {
-                return null;
-              }
-              
-              // First priority: Official trailer from YouTube
-              const officialTrailer = videos.results.find(
-                video => video.site === 'YouTube' && 
-                video.type === 'Trailer' && 
-                video.official === true
-              );
-              if (officialTrailer) return officialTrailer;
-              
-              // Second priority: Official teaser
-              const officialTeaser = videos.results.find(
-                video => video.site === 'YouTube' && 
-                video.type === 'Teaser' && 
-                video.official === true
-              );
-              if (officialTeaser) return officialTeaser;
-              
-              // Third priority: Any trailer (including unofficial)
-              const anyTrailer = videos.results.find(
-                video => video.site === 'YouTube' && 
-                video.type === 'Trailer'
-              );
-              if (anyTrailer) return anyTrailer;
-              
-              // Fourth priority: Any teaser
-              const anyTeaser = videos.results.find(
-                video => video.site === 'YouTube' && 
-                video.type === 'Teaser'
-              );
-              if (anyTeaser) return anyTeaser;
-              
-              // Fifth priority: Clip with "trailer" in the name
-              const trailerClip = videos.results.find(
-                video => video.site === 'YouTube' && 
-                (video.name.toLowerCase().includes('trailer') || 
-                 video.name.toLowerCase().includes('teaser'))
-              );
-              if (trailerClip) return trailerClip;
-              
-              // Last resort: Any YouTube video related to the movie
-              return videos.results.find(video => video.site === 'YouTube');
-            };
-
-            const bestVideo = findBestVideo();
-            if (bestVideo) {
-              // Simple YouTube embed URL - less parameters for better compatibility
-              const url = `https://www.youtube.com/embed/${bestVideo.key}?autoplay=1&mute=1&controls=0`;
-              setTrailerUrl(url);
-              sessionStorage.setItem(cacheKey, url);
-            } else {
-              // No trailer found
-              setTrailerError(true);
-            }
-          }
+          const detailsResponse = await fetch(
+            `${TMDB_BASE_URL}/movie/${movie.id}?api_key=${TMDB_API_KEY}`
+          );
+          const details = await detailsResponse.json();
+          setMovieDetails(details);
+          sessionStorage.setItem(detailsCacheKey, JSON.stringify(details));
         } catch (error) {
           console.error('Error fetching movie details:', error);
-          setTrailerError(true);
         }
       };
 
@@ -140,44 +57,16 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
-      if (trailerTimeoutRef.current) {
-        clearTimeout(trailerTimeoutRef.current);
-      }
     };
-  }, [isHovered, movie.id, movieDetails, trailerUrl, cacheKey, detailsCacheKey]);
+  }, [isHovered, movie.id, movieDetails, detailsCacheKey]);
 
   // Handle hover state and popup visibility with delay
   useEffect(() => {
     if (isHovered && !isMobile) {
-      // Clear any existing timeouts
-      if (trailerTimeoutRef.current) {
-        clearTimeout(trailerTimeoutRef.current);
-      }
-      
-      // Set popup visible first
-      setIsPopupVisible(true);
-      
-      // Then set playing after a short delay to ensure DOM is ready
-      trailerTimeoutRef.current = setTimeout(() => {
-        setIsPlaying(true);
-        // Reset error state when starting to play
-        setTrailerError(false);
-      }, 400);
-      
-      return () => {
-        if (trailerTimeoutRef.current) {
-          clearTimeout(trailerTimeoutRef.current);
-        }
-      };
+      setIsPopupVisible(false);
     } else {
       const timer = setTimeout(() => {
         setIsPopupVisible(false);
-        setIsPlaying(false);
-        
-        // Additional delay before completely resetting states
-        setTimeout(() => {
-          setTrailerLoaded(false);
-        }, 300);
       }, 300);
       
       return () => clearTimeout(timer);
@@ -266,19 +155,6 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
     if (!genres || genres.length === 0) return '';
     return genres.slice(0, 3).map(g => g.name).join(', ');
   };
-  
-  // Handle iframe load errors
-  const handleIframeError = () => {
-    console.log("Trailer iframe error occurred");
-    setTrailerError(true);
-    setTrailerLoaded(false);
-  };
-  
-  // Handle iframe loaded successfully
-  const handleIframeLoaded = () => {
-    console.log("Trailer iframe loaded successfully");
-    setTrailerLoaded(true);
-  };
 
   return (
     <div 
@@ -325,7 +201,7 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
         </div>
       </div>
 
-      {/* Enhanced Netflix-style Trailer Popup */}
+      {/* Enhanced Netflix-style Popup (without trailer) */}
       {!isMobile && (
         <div
           className={`netflix-popup absolute bg-black rounded-lg overflow-hidden 
@@ -337,74 +213,21 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
           }}
           ref={popupRef}
         >
-          {/* Trailer Container */}
+          {/* Backdrop Image */}
           <div className="relative w-full aspect-[16/9] bg-black">
-            {isPlaying && trailerUrl && !trailerError ? (
-              <>
-                <div className={`w-full h-full ${trailerLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
-                  <iframe
-                    src={trailerUrl}
-                    className="w-full h-full border-0"
-                    title={`${movie.title} trailer`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    onLoad={handleIframeLoaded}
-                    onError={handleIframeError}
-                    ref={iframeRef}
-                  />
-                </div>
-                
-                {/* Show backdrop while trailer is loading */}
-                {!trailerLoaded && (
-                  <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    <img
-                      src={movie.backdrop_path 
-                        ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}` 
-                        : (movie.poster_path 
-                            ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` 
-                            : 'https://via.placeholder.com/780x439?text=No+Image')}
-                      alt={movie.title}
-                      className="w-full h-full object-cover opacity-50"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/780x439?text=No+Image';
-                      }}
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Animated Progress Bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800/60">
-                  <div className="h-full bg-red-600 animate-progress-netflix" />
-                </div>
-              </>
-            ) : (
-              // Fallback image when no trailer or error
-              <div className="w-full h-full bg-black">
-                <img
-                  src={movie.backdrop_path 
-                    ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}` 
-                    : (movie.poster_path 
-                        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` 
-                        : 'https://via.placeholder.com/780x439?text=No+Image')}
-                  alt={movie.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/780x439?text=No+Image';
-                  }}
-                />
-                {trailerError && (
-                  <div className="absolute bottom-2 left-2 text-xs text-white bg-black/70 px-2 py-1 rounded">
-                    Trailer unavailable
-                  </div>
-                )}
-              </div>
-            )}
+            <img
+              src={movie.backdrop_path 
+                ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}` 
+                : (movie.poster_path 
+                    ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` 
+                    : 'https://via.placeholder.com/780x439?text=No+Image')}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/780x439?text=No+Image';
+              }}
+            />
             
             {/* Maturity Rating Badge */}
             <div className="absolute top-3 right-3 bg-gray-800/90 text-white text-xs py-0.5 px-2 rounded">
