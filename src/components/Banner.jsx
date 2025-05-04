@@ -281,7 +281,7 @@ export default function NetflixBanner() {
 
   return (
     <div 
-      className={`relative  h-[80vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'} mb-8 sm:mb-12 md:mb-0`}
+      className={`relative  h-[80vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'}  md:mb-0`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -299,7 +299,7 @@ export default function NetflixBanner() {
               muted={isMuted}
               playsInline
               preload="auto"
-              className={`w-full h-full sm:min-h-[90vh] lg:min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`w-full h-full sm:h-[105vh] lg:min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onError={(e) => {
                 console.error("Video error:", e);
                 setIsPlaying(false);
@@ -309,27 +309,27 @@ export default function NetflixBanner() {
             />
           </div>
         ) : (
-          <div className="w-full h-full">
+          <div className="w-full h-[105vh]">
             {/* Responsive images - desktop vs mobile */}
             <img
               src={currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`hidden sm:block w-full h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`hidden sm:block w-full  object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
             <img
               src={currentMovie.mobileImage || currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`sm:hidden w-full h-full object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`sm:hidden w-full min-h-[10vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
           </div>
         )}
         
         {/* Bottom gradient overlay - stronger on mobile */}
-        <div className="absolute inset-0 h-[90vh] lg:h-[105vh]">
+        <div className="absolute inset-0 h-[120vh]">
           {/* Bottom gradient - smooth transition to card section */}
-          <div className="absolute bottom-0 inset-x-0 h-2/3 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent md:via-[#141414]/10" />
+          <div className="absolute bottom-0 inset-x-0 h-[105vh] bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent md:via-[#141414]/10" />
         </div>
       </div>
 
@@ -372,7 +372,7 @@ export default function NetflixBanner() {
           </button>
         )}
 
-        <div className="container mx-auto px-4 sm:px-6 md:px-12 pb-4 sm:pb-6 md:pb-16">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12 pb-4 sm:pb-0 md:pb-16">
           <div className="max-w-md sm:max-w-lg md:max-w-2xl">
               {/* Mobile content - positioned at bottom */}
               <div className="md:hidden flex flex-col justify-end w-full">
