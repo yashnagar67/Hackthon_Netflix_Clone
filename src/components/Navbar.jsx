@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Bell, Menu, X, ChevronDown } from 'lucide-react';
 import SearchDropdown from './SearchDropdown';
+import { saveClickedMovie } from '../utils/searchCache';
 
 // Import movie data
 import { dummyMovies } from '../movies/MovieData';
@@ -85,6 +86,22 @@ export default function NetflixNavbar() {
 
   const handleMovieSelect = (movie) => {
     console.log('Selected movie:', movie);
+    
+    // Save the clicked movie to localStorage
+    saveClickedMovie(movie);
+    
+    // Log all stored movies
+    try {
+      const storedMovies = localStorage.getItem('clickedMovies');
+      if (storedMovies) {
+        const parsedMovies = JSON.parse(storedMovies);
+        console.log('ALL SAVED CLICKED MOVIES:', parsedMovies);
+        console.log('Total saved movies:', parsedMovies.length);
+      }
+    } catch (error) {
+      console.error('Error reading clicked movies from localStorage:', error);
+    }
+    
     // Handle movie selection (e.g., navigate to movie page)
     setSearchQuery('');
     setIsSearchActive(false);
@@ -213,18 +230,19 @@ export default function NetflixNavbar() {
         <div className="flex items-center justify-between space-x-4 md:space-x-6">
           {/* Search Icon & Expandable Search Bar */}
           <div className="relative search-area" ref={searchContainerRef}>
-            <div className={`flex items-center transition-all duration-300 rounded ${isSearchActive ? 'bg-black bg-opacity-90  ' : ''}`}>
+            <div className={`flex items-center transition-all duration-300 rounded ${isSearchActive ? 'bg-black bg-opacity-90 border border-gray-800' : ''}`}>
               <button 
                 className="text-white p-2 focus:outline-none"
+                onClick={toggleSearch}
                 onMouseEnter={toggleSearch}
                 aria-label="Search"
               >
                 <Search size={20} />
               </button>
-              <div className={`overflow-hidden ease-in-out transition-all duration-300 ${isSearchActive ? 'w-36 md:w-100 opacity-100' : 'w-0 opacity-0'}`}>
+              <div className={`overflow-hidden ease-in-out transition-all duration-300 ${isSearchActive ? 'w-50 md:w-100 opacity-100' : 'w-0 opacity-0'}`}>
                 <input 
                   type="text" 
-                  placeholder="Titles, people, genres"
+                  placeholder="Search titles, actors, genres..."
                   className="bg-transparent text-white text-sm w-full px-2 py-1 focus:outline-none"
                   ref={searchInputRef}
                   value={searchQuery}

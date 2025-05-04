@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TMDB_API_KEY, TMDB_BASE_URL } from '../config/tmdb';
 import { Play, Info } from 'lucide-react';
 
+// API base URL (local backend)
+const API_BASE_URL = 'http://localhost:5000/api';
+
 // Custom Netflix Skeleton Animation CSS
 const netflixSkeletonCss = `
   @keyframes netflix-pulse {
@@ -52,8 +55,9 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Mobile tap handler - improves touch experience
-  const handleMobileTap = (e) => {
+  // Tap/click handler for both mobile and desktop
+  const handleCardClick = (e) => {
+    // If it's mobile, we use the two-tap approach
     if (isMobile) {
       if (isPopupVisible) {
         // If popup is already visible, handle selection
@@ -63,6 +67,9 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
         e.preventDefault();
         setIsPopupVisible(true);
       }
+    } else {
+      // On desktop, single click selects the movie
+      onSelect(movie);
     }
   };
 
@@ -76,7 +83,7 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
     if (movie) {
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1000); // Simulating network delay
+      }, 100); // Simulating network delay
       return () => clearTimeout(timer);
     }
   }, [movie]);
@@ -94,10 +101,12 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
             return;
           }
 
-          // Fetch movie details if not in cache
-          const detailsResponse = await fetch(
-            `${TMDB_BASE_URL}/movie/${movie.id}?api_key=${TMDB_API_KEY}`
-          );
+          // Fetch movie details from backend API if not in cache
+          const detailsResponse = await fetch(`${API_BASE_URL}/movie/${movie.id}`);
+          if (!detailsResponse.ok) {
+            throw new Error(`Failed to fetch movie details: ${detailsResponse.status}`);
+          }
+          
           const details = await detailsResponse.json();
           setMovieDetails(details);
           sessionStorage.setItem(detailsCacheKey, JSON.stringify(details));
@@ -221,7 +230,7 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
       
       {/* Info Skeleton */}
       <div className="flex-1 text-left">
-        <div className="h-6 w-3/4 netflix-skeleton rounded mb-2"></div>
+        {/* <div className="h-6 w-3/4 netflix-skeleton rounded mb-2"></div> */}
         <div className="flex items-center gap-2">
           <div className="h-4 w-10 netflix-skeleton rounded"></div>
           <div className="h-4 w-4 netflix-skeleton rounded-full"></div>
@@ -285,12 +294,12 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
           className="netflix-card-hover w-full cursor-pointer"
           onMouseEnter={() => !isMobile && setIsHovered(true)}
           onMouseLeave={() => !isMobile && setIsHovered(false)}
-          onClick={handleMobileTap}
+          onClick={handleCardClick}
         >
           {isLoading ? (
             <MainCardSkeleton />
           ) : (
-            <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-5 bg-gradient-to-r from-gray-900 to-black/90 hover:from-gray-800 hover:to-gray-900/90 group">
+            <div className="p-3 sm:p-4 flex items-center gap-3 sm:gap-5 bg-noen hover:from-gray-800 hover:to-gray-900/90 group">
               {/* Poster with Loading Skeleton */}
               <div className="relative w-16 h-24 sm:w-20 sm:h-28 flex-shrink-0 overflow-hidden rounded-md">
                 {!posterLoaded && (
@@ -307,6 +316,13 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                     setPosterLoaded(true);
                   }}
                 />
+                
+                {/* Play icon overlay on hover for desktop */}
+                {!isMobile && (
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <Play className="text-white w-8 h-8" />
+                  </div>
+                )}
               </div>
               
               {/* Basic Info */}
@@ -324,6 +340,15 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                     {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
                   </span>
                 </div>
+                
+                {/* Click indicator for desktop */}
+                {!isMobile && (
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="text-red-500 text-xs flex items-center">
+                      <Play size={12} className="mr-1" /> Click to play
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -357,7 +382,7 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
               <div className="relative w-full aspect-[16/9] bg-black">
                 {!backdropLoaded && (
                   <div className="absolute inset-0 netflix-skeleton flex items-center justify-center">
-                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-gray-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12zm10 6c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6z" fill="currentColor" opacity="0.3"/>
                       <path d="M12 16c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="currentColor"/>
                     </svg>
@@ -439,14 +464,20 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                 <div className="flex items-center gap-2 sm:gap-3">
                   <button 
                     className="flex-1 flex items-center justify-center gap-1 sm:gap-2 bg-white hover:bg-white/90 text-black px-3 sm:px-4 py-1.5 sm:py-2 rounded font-medium text-xs sm:text-sm transition-colors"
-                    onClick={() => onSelect(movie)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent event bubbling
+                      onSelect(movie);
+                    }}
                   >
                     <Play size={isMobile ? 14 : 18} />
                     <span>Play</span>
                   </button>
                   <button 
                     className="flex-1 flex items-center justify-center gap-1 sm:gap-2 bg-gray-600/60 hover:bg-gray-600/80 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded font-medium text-xs sm:text-sm transition-colors"
-                    onClick={() => onSelect(movie)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent event bubbling
+                      onSelect(movie);
+                    }}
                   >
                     <Info size={isMobile ? 14 : 18} />
                     <span>More Info</span>

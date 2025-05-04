@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import NetflixBrowseWithStyles from './components/Banner'
 import NetflixBrowse from './movies/MovieCard/MovieCard'
 import RecommendationSection from './components/RecommendationSection'
+import Footer from './components/Footer'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -27,6 +28,7 @@ function App() {
         <Route path="/mylist" element={<div>My List Page</div>} />
         <Route path="/recommended" element={<div>Search Page</div>} />
       </Routes>
+      <Footer />
     </>
   )
 }
