@@ -5,7 +5,7 @@ export const dummyMovies = {
       id: 1, 
       title: "Chhaava", 
       posterUrl: "https://dnm.nflximg.net/api/v6/Qs00mKCpRvrkl3HZAN5KwEL1kpE/AAAABYWjbNs5OdfPXZNmeF_1JOjIUL_zTICjGHROVvR8y2Hy_1OLkeBzfYcxoNzf9lV1J2386XV5aiiPCMByZBdUTiXP6ARLCezhxm8.jpg?r=a3b", 
-      previewUrl: " Chhaava.mp4",
+      previewUrl: "Chhaava.mp4",
       isTopTen: true, 
       recentlyAdded: true,
       description: "Historical epic about the legendary Maratha warrior",

@@ -299,7 +299,7 @@ export default function NetflixBanner() {
               muted={isMuted}
               playsInline
               preload="auto"
-              className={`w-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onError={(e) => {
                 console.error("Video error:", e);
                 setIsPlaying(false);
@@ -314,13 +314,13 @@ export default function NetflixBanner() {
             <img
               src={currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`hidden md:block w-full h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`hidden md:block w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
             <img
               src={currentMovie.mobileImage}
               alt={currentMovie.title}
-              className={`md:hidden w-full h-full object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`md:hidden w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
           </div>
@@ -341,7 +341,7 @@ export default function NetflixBanner() {
           {/* <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/40 to-transparent" /> */}
           
           {/* Bottom gradient - smooth transition to card section */}
-          <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-[#141414] via-[#141414]/10 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-2/3 bg-gradient-to-t from-[#141414] via-[#141414]/10 to-transparent" />
         </div>
       </div>
 

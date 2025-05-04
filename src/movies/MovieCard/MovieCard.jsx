@@ -16,12 +16,23 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
   const [showDelayedFetch, setShowDelayedFetch] = useState(false);
   const [shouldShowPreview, setShouldShowPreview] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [posterLoaded, setPosterLoaded] = useState(false);
   const videoRef = useRef(null);
   const cardRef = useRef(null);
   const timerRef = useRef(null);
   const hoverTimerRef = useRef(null);
   const popupRef = useRef(null);
   const fetchTimerRef = useRef(null);
+
+  // Initial loading simulation
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000 + Math.random() * 500); // Random delay for more natural loading effect
+    return () => clearTimeout(timer);
+  }, []);
 
   // Calculate position of popup card
   const calculatePosition = () => {
@@ -49,17 +60,26 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
     }
   };
 
+  // Card skeleton component
+  const CardSkeleton = () => (
+    <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-50 md:h-70 lg:w-55 lg:h-80 rounded overflow-hidden netflix-skeleton">
+      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-gray-900 to-transparent"></div>
+    </div>
+  );
+
   // Unified mouse enter/leave handlers for both card and popup
   const handleMouseEnter = () => {
+    if (isLoading) return;
+    
     if (timerRef.current) clearTimeout(timerRef.current);
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
     
     calculatePosition();
     
-    // Set a 2-second delay before showing the preview
+    // Set a delay before showing the preview
     hoverTimerRef.current = setTimeout(() => {
       setShouldShowPreview(true);
-    setHoveredId(movie.id);
+      setHoveredId(movie.id);
     }, 500);
   };
 
@@ -231,27 +251,44 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
         onMouseLeave={handleMouseLeave}
       >
         {/* Base Movie Card */}
-        <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-50 md:h-10 lg:w-55 lg:h-30 rounded overflow-hidden transition-shadow duration-300">
-          <img
-            src={movie.posterUrl}
-            alt={movie.title}
-            className="w-full h-full object-fill"
-          />
-          {/* Dark overlay for better text readability on hover */}
-          <div className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-25"></div>
-          {/* Top 10 Badge */}
-          {movie.isTopTen && (
-            <div className="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-bl font-bold">
-              TOP 10
+        {isLoading ? (
+          <CardSkeleton />
+        ) : (
+          <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-50 md:h-10 lg:w-55 lg:h-30 rounded overflow-hidden transition-shadow duration-300">
+            {/* Image with Loading State */}
+            <div className="w-full h-full">
+              {!posterLoaded && (
+                <div className="absolute inset-0 bg-gray-800 animate-pulse flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12zm10 6c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6z" fill="currentColor" opacity="0.3"/>
+                    <path d="M12 16c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" fill="currentColor"/>
+                  </svg>
+                </div>
+              )}
+              <img
+                src={movie.posterUrl}
+                alt={movie.title}
+                className={`w-full h-full object-fill ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setPosterLoaded(true)}
+                onError={() => setPosterLoaded(true)}
+              />
             </div>
-          )}
-          {/* Recently Added Banner */}
-          {movie.recentlyAdded && (
-            <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-xs py-0 text-center font-medium">
-              Recently added
-            </div>
-          )}
-        </div>
+            {/* Dark overlay for better text readability on hover */}
+            <div className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-25"></div>
+            {/* Top 10 Badge */}
+            {movie.isTopTen && (
+              <div className="absolute top-0 right-0 bg-red-600 text-white text-xs px-2 py-1 rounded-bl font-bold">
+                TOP 10
+              </div>
+            )}
+            {/* Recently Added Banner */}
+            {movie.recentlyAdded && (
+              <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-xs py-0 text-center font-medium">
+                New
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Hover Preview Popup */}
@@ -476,7 +513,17 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
 const MovieRow = ({ title, movies }) => {
   const [hoveredId, setHoveredId] = useState(null);
   const [showControls, setShowControls] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const rowRef = useRef(null);
+  
+  // Simulate loading state
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500); // Simulating network delay
+    return () => clearTimeout(timer);
+  }, []);
   
   const scroll = (direction) => {
     if (rowRef.current) {
@@ -492,48 +539,76 @@ const MovieRow = ({ title, movies }) => {
     }
   };
 
+  // Skeleton for movie row
+  const MovieRowSkeleton = () => (
+    <>
+      {/* Title Skeleton */}
+      <div className="flex items-center justify-between px-4 mb-2">
+        <div className="h-8 w-48 netflix-skeleton rounded"></div>
+        <div className="h-5 w-24 netflix-skeleton rounded"></div>
+      </div>
+      
+      {/* Cards Skeleton */}
+      <div className="flex overflow-x-hidden py-6 px-4 gap-2 md:gap-4">
+        {[...Array(6)].map((_, index) => (
+          <div key={index} className="flex-shrink-0" style={{ width: '180px' }}>
+            <div 
+              className={`w-full aspect-[2/3] rounded-md netflix-skeleton staggered-delay-${index % 5 + 1}`}
+            ></div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
   return (
     <div 
       className="mb-8 relative py-4" 
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
-      <div className="flex items-center justify-between px-4 mb-2">
-        <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
-        <button className="text-gray-400 hover:text-white text-sm">Explore All</button>
-      </div>
-      
-      <div className="relative">
-        {/* Left Control */}
-        {showControls && (
-          <button 
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 transition-all"
-            onClick={() => scroll('left')}
-          >
-            <ChevronLeft size={24} />
-          </button>
-        )}
-        
-        {/* Movie Cards Container */}
-        <div 
-          ref={rowRef}
-          className="flex overflow-x-scroll no-scrollbar scroll-smooth py-6 px-4 gap-2 md:gap-4"
-        >
-          {movies.map(movie => (
-            <MovieCard key={movie.id} movie={movie} hoveredId={hoveredId} setHoveredId={setHoveredId} />
-          ))}
-        </div>
-        
-        {/* Right Control */}
-        {showControls && (
-          <button 
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 transition-all"
-            onClick={() => scroll('right')}
-          >
-            <ChevronRight size={24} />
-          </button>
-        )}
-      </div>
+      {isLoading ? (
+        <MovieRowSkeleton />
+      ) : (
+        <>
+          <div className="flex items-center justify-between px-4 mb-2">
+            <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
+            <button className="text-gray-400 hover:text-white text-sm">Explore All</button>
+          </div>
+          
+          <div className="relative">
+            {/* Left Control */}
+            {showControls && (
+              <button 
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 transition-all"
+                onClick={() => scroll('left')}
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+            
+            {/* Movie Cards Container */}
+            <div 
+              ref={rowRef}
+              className="flex overflow-x-scroll no-scrollbar scroll-smooth py-6 px-4 gap-2 md:gap-4"
+            >
+              {movies.map(movie => (
+                <MovieCard key={movie.id} movie={movie} hoveredId={hoveredId} setHoveredId={setHoveredId} />
+              ))}
+            </div>
+            
+            {/* Right Control */}
+            {showControls && (
+              <button 
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-12 h-12 rounded-full bg-black bg-opacity-50 text-white hover:bg-opacity-70 transition-all"
+                onClick={() => scroll('right')}
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -549,7 +624,7 @@ const NetflixBrowse = () => {
   );
 };
 
-// Custom CSS for no scrollbar
+// Custom CSS for no scrollbar and animations
 const customStyles = `
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -558,6 +633,58 @@ const customStyles = `
     -ms-overflow-x: none;
     scrollbar-width: none;
   }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes scaleIn {
+    from { 
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to { 
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes progress {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  
+  @keyframes netflix-pulse {
+    0% {
+      opacity: 0.6;
+      background-position: 0% 0%;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.6;
+      background-position: -135% 0%;
+    }
+  }
+  
+  .netflix-skeleton {
+    background: linear-gradient(
+      90deg, 
+      #1a1a1a 0%, 
+      #2a2a2a 50%, 
+      #1a1a1a 100%
+    );
+    background-size: 400% 100%;
+    animation: netflix-pulse 1.8s ease-in-out infinite;
+  }
+  
+  .staggered-delay-1 { animation-delay: 0.1s; }
+  .staggered-delay-2 { animation-delay: 0.2s; }
+  .staggered-delay-3 { animation-delay: 0.3s; }
+  .staggered-delay-4 { animation-delay: 0.4s; }
+  .staggered-delay-5 { animation-delay: 0.5s; }
 `;
 
 export default () => (
