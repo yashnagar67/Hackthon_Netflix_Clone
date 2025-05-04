@@ -11,74 +11,35 @@ const MovieCard = ({ movie }) => {
   const [videoReady, setVideoReady] = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
   const [trailerUrl, setTrailerUrl] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
   const videoRef = useRef(null);
   const cardRef = useRef(null);
   const timerRef = useRef(null);
   const hoverTimerRef = useRef(null);
   const popupRef = useRef(null);
   
-  // Check device type
-  useEffect(() => {
-    const checkDeviceType = () => {
-      setIsMobile(window.innerWidth < 640);
-      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
-    };
-    
-    checkDeviceType();
-    window.addEventListener('resize', checkDeviceType);
-    return () => window.removeEventListener('resize', checkDeviceType);
-  }, []);
-  
   // Calculate position of popup card
   const calculatePosition = () => {
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
       
-      if (isMobile) {
-        // For mobile: center the popup in the viewport
-        setPreviewPos({
-          top: Math.max(window.scrollY + 70, window.scrollY + rect.top - 30),
-          left: viewportWidth / 2 - 175, // Center the 350px wide popup
-        });
-      } else if (isTablet) {
-        // For tablet: adjust position based on space available
-        let leftPos = rect.left + window.scrollX - 40;
-        const popupWidth = 350;
-        
-        if (leftPos + popupWidth > viewportWidth) {
-          leftPos = viewportWidth - popupWidth - 20;
-        }
-        
-        if (leftPos < 20) {
-          leftPos = 20;
-        }
-        
-        setPreviewPos({
-          top: rect.top + window.scrollY - 50,
-          left: leftPos
-        });
-      } else {
-        // For desktop: original positioning
-        let leftPos = rect.left + window.scrollX - 40;
-        const popupWidth = 350;
-        
-        if (leftPos + popupWidth > viewportWidth) {
-          leftPos = viewportWidth - popupWidth - 20;
-        }
-        
-        if (leftPos < 20) {
-          leftPos = 20;
-        }
-        
-        setPreviewPos({
-          top: rect.top + window.scrollY - 60,
-          left: leftPos
-        });
+      // Adjust left position to ensure popup doesn't go off-screen
+      let leftPos = rect.left + window.scrollX - 40;
+      const popupWidth = viewportWidth < 640 ? 280 : 350; // Smaller width on mobile
+      
+      if (leftPos + popupWidth > viewportWidth) {
+        leftPos = viewportWidth - popupWidth - 20; // Keep 20px margin from right edge
       }
+      
+      // Also ensure not too far left
+      if (leftPos < 20) {
+        leftPos = 20;
+      }
+      
+      setPreviewPos({
+        top: rect.top + window.scrollY - (viewportWidth < 640 ? 40 : 60), // Reduce distance on mobile
+        left: leftPos
+      });
     }
   };
 
@@ -93,7 +54,7 @@ const MovieCard = ({ movie }) => {
     hoverTimerRef.current = setTimeout(() => {
       setShouldShowPreview(true);
       setHoveredId(movie.id);
-    }, isMobile || isTablet ? 100 : 500); // Faster response on mobile/tablet
+    }, 500);
   };
 
   const handleMouseLeave = () => {
@@ -108,27 +69,18 @@ const MovieCard = ({ movie }) => {
     }, 120); // 120ms delay prevents flicker
   };
 
-  // Handle mobile tap
-  const handleCardTap = () => {
-    if (isMobile || isTablet) {
-      if (shouldShowPreview && hoveredId === movie.id) {
-        // If preview is already visible, close it or play the movie
-        setShouldShowPreview(false);
-        setHoveredId(null);
-      } else {
-        // First tap shows the preview
-        calculatePosition();
-        setShouldShowPreview(true);
-        setHoveredId(movie.id);
-      }
-    }
-  };
-
   const toggleMute = (e) => {
     e.stopPropagation();
     setIsMuted(!isMuted);
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
+      if (movie.previewUrl && movie.previewUrl.includes('drive.google.com')) {
+        // For Google Drive embeds, we can't directly control the mute
+        // We could potentially use postMessage API but for simplicity
+        // we'll just show the mute state visually
+        console.log("Mute toggled for Google Drive embed");
+      } else {
+        videoRef.current.muted = !isMuted;
+      }
     }
   };
   
@@ -224,161 +176,188 @@ const MovieCard = ({ movie }) => {
         className="relative flex-shrink-0 cursor-pointer netflix-card-hover group"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onClick={handleCardTap}
       >
         {/* Base Movie Card */}
-        <div className="relative w-28 h-40 sm:w-32 sm:h-48 md:w-40 md:h-60 lg:w-45 lg:h-65 rounded overflow-hidden transition-shadow duration-300">
+        <div className="relative w-55 h-30 sm:w-32 sm:h-48 md:w-40 md:h-60 lg:w-55 lg:h-30 rounded overflow-hidden transition-shadow duration-300 shadow-lg">
           <img
             src={movie.posterUrl}
             alt={movie.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-fill"
           />
           {/* Dark overlay for better text readability on hover */}
           <div className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 group-hover:opacity-25"></div>
           
           {/* Recommendation tag always visible */}
-          <div className="absolute top-0 left-0 bg-red-600 text-white text-xs font-bold px-2 py-0.5 z-10 shadow-lg" 
+          <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-3 py-0.5 sm:py-1 z-10 shadow-lg" 
             style={{ 
               textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
               boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
             }}>
-            AI Pick
+            AI Recommended
           </div>
           
           {/* Top 10 Badge */}
           {movie.isTopTen && (
-            <div className="absolute top-0 right-0 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-bl font-bold">
+            <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded-bl font-bold">
               TOP 10
             </div>
           )}
           
           {/* Recently Added Banner */}
           {movie.recentlyAdded && (
-            <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-xs py-0 text-center font-medium">
-              New
+            <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white text-[10px] sm:text-xs py-0 text-center font-medium">
+              Recently added
             </div>
           )}
+        </div>
+
+        {/* Mobile title display for better accessibility */}
+        <div className="block md:hidden mt-1 max-w-[7rem] sm:max-w-[8rem]">
+          <p className="text-[11px] sm:text-xs text-white/80 truncate">{movie.title}</p>
         </div>
       </div>
 
       {/* Hover Preview Popup */}
       {shouldShowPreview && hoveredId === movie.id && createPortal(
         <div
-          ref={popupRef}
-          className="fixed sm:absolute bg-neutral-900 text-white rounded-md shadow-2xl netflix-popup z-[9999]"
+          className="absolute bg-neutral-900 text-white rounded-md shadow-2xl netflix-popup"
           style={{
-            top: isMobile ? '50%' : previewPos.top,
-            left: isMobile ? '50%' : previewPos.left,
-            transform: isMobile ? 'translate(-50%, -50%)' : 'none',
-            position: isMobile ? 'fixed' : 'absolute',
-            width: isMobile ? 'calc(100vw - 40px)' : '350px',
-            maxWidth: '90vw',
-            maxHeight: isMobile ? '80vh' : 'none',
-            overflow: isMobile ? 'auto' : 'visible',
+            top: previewPos.top,
+            left: previewPos.left,
+            position: 'absolute',
+            width: window.innerWidth < 640 ? '280px' : '350px',
+            zIndex: 9999,
+            transformOrigin: 'center top',
             transition: 'transform 300ms ease-in-out, opacity 300ms ease-in-out',
             opacity: 1,
+            transform: 'scale(1)'
           }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Close button for mobile */}
-          {isMobile && (
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setShouldShowPreview(false);
-                setHoveredId(null);
-              }}
-              className="absolute top-2 right-2 z-10 w-8 h-8 bg-black/70 rounded-full flex items-center justify-center"
-            >
-              <X size={16} />
-            </button>
-          )}
-
           {/* Preview Image/Video */}
           <div className="relative w-full aspect-[16/9] bg-gray-800 rounded-t-md overflow-hidden">
-            {!videoReady && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black">
-                <div className="w-8 h-8 border-2 border-gray-600 border-t-red-600 rounded-full animate-spin"></div>
+            {movie.previewUrl ? (
+              <>
+                {!videoReady && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
+                    <div className="w-8 h-8 border-2 border-gray-600 border-t-red-600 rounded-full animate-spin"></div>
+                  </div>
+                )}
+                {movie.previewUrl.includes('drive.google.com') ? (
+                  <iframe
+                    ref={videoRef}
+                    src={movie.previewUrl}
+                    className={`w-full h-full object-cover ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ 
+                      transition: 'opacity 0.3s ease',
+                      backgroundColor: '#000'
+                    }}
+                    allow="autoplay"
+                    onLoad={handleVideoLoaded}
+                    onError={handleVideoError}
+                    frameBorder="0"
+                  ></iframe>
+                ) : (
+                  <video
+                    ref={videoRef}
+                    src={movie.previewUrl}
+                    poster={movie.posterUrl}
+                    muted={isMuted}
+                    autoPlay
+                    playsInline
+                    loop
+                    preload="auto"
+                    className={`w-full h-full object-cover ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ 
+                      transition: 'opacity 0.3s ease',
+                      objectFit: 'cover',
+                      backgroundColor: '#000'
+                    }}
+                    onLoadedData={handleVideoLoaded}
+                    onError={handleVideoError}
+                  >
+                    <source src={movie.previewUrl} type="video/mp4" />
+                  </video>
+                )}
+              </>
+            ) : (
+              <div className="relative w-full h-full">
+                <img
+                  src={movie.posterUrl}
+                  alt={movie.title}
+                  className="w-full h-full object-cover"
+                />
+                {/* Gradient overlay for better readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
+                {/* Netflix N Logo */}
+                <div className="absolute top-3 left-3">
+                  <svg className="w-5 h-5 text-red-600 fill-current" viewBox="0 0 111 30">
+                    <path d="M105.06233,14.2806261 L110.999156,30 C109.249227,29.7497422 107.500234,29.4366857 105.718437,29.1554972 L102.374168,20.4686475 L98.9371075,28.4375293 C97.2499766,28.1563408 95.5928391,28.061674 93.9057081,27.8432843 L99.9372012,14.0931671 L94.4680851,-5.68434189e-14 L99.5313525,-5.68434189e-14 L102.593495,7.87421502 L105.874965,-5.68434189e-14 L110.999156,-5.68434189e-14 L105.06233,14.2806261 Z M90.4686475,-5.68434189e-14 L85.8749649,-5.68434189e-14 L85.8749649,27.2499766 C87.3746368,27.3437061 88.9371075,27.4055675 90.4686475,27.5930265 L90.4686475,-5.68434189e-14 Z M81.9055207,26.93692 C77.7186241,26.6557316 73.5307901,26.4064111 69.250164,26.3117443 L69.250164,-5.68434189e-14 L73.9366389,-5.68434189e-14 L73.9366389,21.8745899 C76.6248008,21.9373887 79.3120255,22.1557784 81.9055207,22.2804387 L81.9055207,26.93692 Z M64.2496954,10.6561065 L64.2496954,15.3435186 L57.8442216,15.3435186 L57.8442216,25.9996251 L53.2186709,25.9996251 L53.2186709,-5.68434189e-14 L66.3436123,-5.68434189e-14 L66.3436123,4.68741213 L57.8442216,4.68741213 L57.8442216,10.6561065 L64.2496954,10.6561065 Z M45.3435186,4.68741213 L45.3435186,26.2498828 C43.7810479,26.2498828 42.1876465,26.2498828 40.6561065,26.3117443 L40.6561065,4.68741213 L35.8121661,4.68741213 L35.8121661,-5.68434189e-14 L50.2183897,-5.68434189e-14 L50.2183897,4.68741213 L45.3435186,4.68741213 Z M30.749836,15.5928391 C28.687787,15.5928391 26.2498828,15.5928391 24.4999531,15.6875059 L24.4999531,22.6562939 C27.2499766,22.4678976 30,22.2495079 32.7809542,22.1557784 L32.7809542,26.6557316 L19.812541,27.6876933 L19.812541,-5.68434189e-14 L32.7809542,-5.68434189e-14 L32.7809542,4.68741213 L24.4999531,4.68741213 L24.4999531,10.9991564 C26.3126816,10.9991564 29.0936358,10.9054269 30.749836,10.9054269 L30.749836,15.5928391 Z M4.78114163,12.9684132 L4.78114163,29.3429562 C3.09401069,29.5313525 1.59340144,29.7497422 0,30 L0,-5.68434189e-14 L4.4690224,-5.68434189e-14 L10.562377,17.0315868 L10.562377,-5.68434189e-14 L15.2497891,-5.68434189e-14 L15.2497891,28.061674 C13.5935889,28.3437998 11.906458,28.4375293 10.1246602,28.6868498 L4.78114163,12.9684132 Z"></path>
+                  </svg>
+                </div>
               </div>
             )}
-            <video
-              ref={videoRef}
-              src={movie.previewUrl}
-              poster={movie.posterUrl}
-              muted={isMuted}
-              autoPlay
-              playsInline
-              loop
-              preload="auto"
-              className={`w-full h-full object-cover ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-              style={{ 
-                transition: 'opacity 0.3s ease',
-                objectFit: 'cover',
-                backgroundColor: '#000'
-              }}
-              onLoadedData={handleVideoLoaded}
-              onError={handleVideoError}
-            />
-            
-            {/* Sound toggle */}
-            <button 
-              className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-black/70 hover:bg-black/90"
+            {/* Sound icon overlay */}
+            <button
               onClick={toggleMute}
+              className="absolute bottom-4 right-4 bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-colors z-10"
             >
-              {isMuted ? <VolumeX size={isMobile ? 16 : 18} /> : <Volume2 size={isMobile ? 16 : 18} />}
+              {isMuted ? (
+                <VolumeX className="w-5 h-5 text-white" />
+              ) : (
+                <Volume2 className="w-5 h-5 text-white" />
+              )}
             </button>
-            
-            {/* Maturity Rating Badge */}
-            <div className="absolute top-3 right-3 bg-gray-800/90 text-white text-xs py-0.5 px-2 rounded">
-              {movie.maturityRating || "16+"}
-            </div>
           </div>
 
-          {/* Movie Info */}
-          <div className="p-3 sm:p-4">
-            {/* Title and Match Row */}
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-white font-bold text-base sm:text-lg flex-1 truncate">{movie.title}</h3>
-              <div className="ml-2 flex-shrink-0">
-                <span className="text-green-500 font-medium text-sm">{movie.match || "97%"} Match</span>
-              </div>
-            </div>
-            
-            {/* Metadata Row */}
-            <div className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3">
-              <span>{movie.year || "2023"}</span>
-              <span className="text-gray-500">•</span>
-              <span>{movie.duration || "2h 3m"}</span>
-              <span className="text-gray-500">•</span>
-              <span className="truncate max-w-[150px]">{genreDisplay || "Drama • Action • Thriller"}</span>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2 sm:gap-3">
+          {/* Controls Row */}
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <button 
-                className="flex-1 flex items-center justify-center gap-1 sm:gap-2 bg-white hover:bg-white/90 text-black px-2 sm:px-4 py-1.5 sm:py-2 rounded font-medium text-xs sm:text-sm transition-colors"
                 onClick={handlePlayTrailer}
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center hover:bg-white/90 transition-colors"
               >
-                <Play size={isMobile ? 12 : 18} />
-                <span>Play</span>
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-600/40 hover:bg-gray-600/60">
-                <Plus size={isMobile ? 14 : 18} />
+              <button className="w-7 h-7 sm:w-8 sm:h-8 border-2 border-gray-400 rounded-full flex items-center justify-center hover:border-white transition-colors">
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-600/40 hover:bg-gray-600/60">
-                <ThumbsUp size={isMobile ? 14 : 18} />
-              </button>
-              <button 
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-600/40 hover:bg-gray-600/60 ml-auto"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log("More info for:", movie.title);
-                }}
-              >
-                <ChevronDown size={isMobile ? 14 : 18} />
+              <button className="w-7 h-7 sm:w-8 sm:h-8 border-2 border-gray-400 rounded-full flex items-center justify-center hover:border-white transition-colors">
+                <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
             </div>
+            <button className="w-7 h-7 sm:w-8 sm:h-8 border-2 border-gray-400 rounded-full flex items-center justify-center hover:border-white transition-colors">
+              <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            </button>
+          </div>
+
+          {/* Info Section */}
+          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+            {/* Title and Year */}
+            <h3 className="text-base sm:text-lg font-bold mb-1">{movie.title} <span className="font-normal text-gray-400">({movie.year})</span></h3>
+            
+            {/* Rating & Quality */}
+            <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2 text-xs sm:text-sm">
+              <span className="text-green-500 font-medium">97% Match</span>
+              <span className="border border-gray-500 text-xs px-1">{movie.year >= 2020 ? 'U/A 16+' : 'A'}</span>
+              <span>{movie.year}</span>
+              <span className="border border-gray-500 text-xs px-1">HD</span>
+            </div>
+
+            {/* Description */}
+            {movie.description && (
+              <p className="text-xs sm:text-sm text-gray-300 mb-1 sm:mb-2 line-clamp-3">
+                {movie.description}
+              </p>
+            )}
+            
+            {/* Genres */}
+            {genreDisplay && (
+              <div className="text-xs text-gray-400">
+                {genreDisplay}
+              </div>
+            )}
           </div>
         </div>,
         document.body
@@ -387,31 +366,67 @@ const MovieCard = ({ movie }) => {
       {/* Trailer Modal */}
       {showTrailer && createPortal(
         <div 
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[10000]"
+          className="fixed inset-0 bg-black flex items-center justify-center z-[1100]"
+          style={{
+            animation: 'fadeIn 0.8s ease-in-out forwards',
+            backdropFilter: 'blur(3px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.85)'
+          }}
           onClick={closeTrailer}
         >
           <div 
-            className="relative w-full h-full sm:w-4/5 sm:h-auto max-w-4xl aspect-video p-4 sm:p-0"
             ref={popupRef}
+            className="relative w-11/12 max-w-4xl aspect-video bg-black rounded-md shadow-2xl"
+            style={{
+              animation: 'scaleIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards',
+              opacity: 0,
+              transform: 'scale(0.95)'
+            }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Close button */}
-            <button 
-              className="absolute top-4 right-4 sm:-top-10 sm:-right-10 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-neutral-800 hover:bg-neutral-700 rounded-full flex items-center justify-center"
-              onClick={closeTrailer}
-            >
-              <X />
-            </button>
-            
-            {/* Iframe for Trailer */}
-            {trailerUrl && (
+            {!trailerUrl ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="w-16 h-16 relative">
+                  <div className="w-16 h-16 border-4 border-gray-600 border-t-red-600 rounded-full animate-spin"></div>
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center text-white text-sm"
+                    style={{ animation: 'fadeIn 0.5s ease-in-out 0.5s forwards', opacity: 0 }}
+                  >
+                    Loading
+                  </div>
+                </div>
+                <p 
+                  className="text-gray-400 mt-4 text-sm" 
+                  style={{ animation: 'fadeIn 0.5s ease-in-out 0.8s forwards', opacity: 0 }}
+                >
+                  Fetching movie trailer...
+                </p>
+                <div className="mt-4 w-64 h-1 bg-gray-800 overflow-hidden rounded-full">
+                  <div 
+                    className="h-full bg-red-600" 
+                    style={{
+                      width: '0%',
+                      animation: 'progress 2s linear forwards',
+                    }}
+                  ></div>
+                </div>
+              </div>
+            ) : (
               <iframe
                 src={trailerUrl}
+                className="w-full h-full rounded-md"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                className="w-full h-full"
+                style={{ opacity: 0, animation: 'fadeIn 0.5s ease-in-out forwards' }}
               ></iframe>
             )}
+            <button 
+              onClick={closeTrailer}
+              className="absolute -top-12 right-0 text-white p-2 hover:bg-black hover:bg-opacity-50 rounded-full transition-colors"
+              style={{ animation: 'fadeIn 0.5s ease-in-out 0.5s forwards', opacity: 0 }}
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
         </div>,
         document.body
@@ -421,222 +436,98 @@ const MovieCard = ({ movie }) => {
 };
 
 const RecommendationSection = () => {
-  const [recommendations, setRecommendations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [isScrollable, setIsScrollable] = useState(false);
-  const rowRef = useRef(null);
-  const contentRef = useRef(null);
-
+  const [recommendations, setRecommendations] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  
+  // Set up event listener on mount
   useEffect(() => {
-    // Simulate loading recommendations
-    setIsLoading(true);
-    const timeout = setTimeout(() => {
-      // Sample recommendation data
-      const sampleRecommendations = [
-        {
-          id: 1,
-          title: 'Chhaava',
-          posterUrl: 'https://assetscdn1.paytm.com/images/cinema/Chhaava-1-214x366-e7404440-8f16-11ee-bad3-a13961e0d339.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 98,
-          year: 2023,
-          maturityRating: '16+',
-          duration: '2h 30m',
-          genre: ['Drama', 'History', 'Action'],
-          description: 'A young warrior rises to prominence through historical battles.',
-          isTopTen: true
-        },
-        {
-          id: 2,
-          title: 'Lucky Baskhar',
-          posterUrl: 'https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/lucky-baskhar-et00365846-1700464074.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 95,
-          year: 2023,
-          maturityRating: 'PG-13',
-          duration: '2h 15m',
-          genre: ['Drama', 'Comedy', 'Crime'],
-          recentlyAdded: true
-        },
-        {
-          id: 3,
-          title: 'Jewel Thief',
-          posterUrl: 'https://1.bp.blogspot.com/-PocW8zY5l5o/YYgolc9bkzI/AAAAAAAAXuw/6TG8YlPZDEE4uP5SXNM3ZBjEPQw_K0UpwCNcBGAsYHQ/s1080/Jewel-Thief-1967-movie-posters.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 92,
-          year: 1967,
-          maturityRating: 'U',
-          duration: '2h 40m',
-          genre: ['Mystery', 'Thriller', 'Classic']
-        },
-        {
-          id: 4,
-          title: 'MAID',
-          posterUrl: 'https://upload.wikimedia.org/wikipedia/en/8/82/Maid_miniseries.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 97,
-          year: 2021,
-          maturityRating: '18+',
-          duration: 'Limited Series',
-          genre: ['Drama', 'Women', 'Social Issue'],
-          recentlyAdded: true
-        },
-        {
-          id: 5,
-          title: 'Pushpa: The Rise',
-          posterUrl: 'https://upload.wikimedia.org/wikipedia/en/7/72/Pushpa_-_The_Rise_%282021_film%29_poster.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 94,
-          year: 2021,
-          maturityRating: '16+',
-          duration: '2h 59m',
-          genre: ['Action', 'Crime', 'Thriller'],
-          isTopTen: true
-        },
-        {
-          id: 6,
-          title: 'Court',
-          posterUrl: 'https://upload.wikimedia.org/wikipedia/en/c/cd/Court_%282014_film%29.jpg',
-          previewUrl: 'https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4',
-          match: 96,
-          year: 2014,
-          maturityRating: 'PG-13',
-          duration: '1h 56m',
-          genre: ['Drama', 'Legal', 'Social']
-        }
-      ];
-      
-      setRecommendations(sampleRecommendations);
-      setIsLoading(false);
-      
-    }, 1500); // Simulate network delay
+    console.log('Setting up event listener for recommendations');
     
-    return () => clearTimeout(timeout);
-  }, []);
-
-  // Check if content is scrollable
-  useEffect(() => {
-    const checkScrollable = () => {
-      if (contentRef.current && rowRef.current) {
-        setIsScrollable(contentRef.current.scrollWidth > rowRef.current.clientWidth);
+    // Define the handler function
+    function handleRecommendEvent(event) {
+      console.log('Recommendation event received!', event.detail);
+      if (event.detail && event.detail.movies) {
+        setRecommendations(event.detail.movies);
+        setSelectedGenres(event.detail.genres || []);
+        setIsVisible(true);
+        
+        // Scroll to recommendation section after a short delay
+        setTimeout(() => {
+          const anchor = document.getElementById('recommendation-anchor');
+          if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth' });
+            console.log('Scrolling to recommendation anchor');
+          } else {
+            console.warn('Recommendation anchor not found');
+          }
+        }, 100);
       }
-    };
-    
-    checkScrollable();
-    window.addEventListener('resize', checkScrollable);
-    return () => window.removeEventListener('resize', checkScrollable);
-  }, [recommendations, isLoading]);
-
-  // Track recommendation clicks
-  function handleRecommendEvent(event) {
-    // In a real app, you would send analytics data about the recommendation click
-    console.log('Recommendation clicked:', event);
-    // Could send to analytics service here
-  }
-
-  // Scroll logic
-  const scroll = (direction) => {
-    if (contentRef.current) {
-      const scrollAmount = direction === 'left' ? -400 : 400;
-      const newPosition = scrollPosition + scrollAmount;
-      
-      // Calculate bounds
-      const maxScroll = contentRef.current.scrollWidth - rowRef.current.clientWidth;
-      const boundedPosition = Math.max(0, Math.min(newPosition, maxScroll));
-      
-      setScrollPosition(boundedPosition);
-      contentRef.current.scrollTo({
-        left: boundedPosition,
-        behavior: 'smooth'
-      });
     }
-  };
-
-  // Loading skeleton
-  const RecommendationSkeleton = () => (
-    <div className="p-4 sm:p-6">
-      <div className="h-6 w-48 bg-gray-800 animate-pulse mb-4"></div>
-      <div className="h-4 w-64 bg-gray-800 animate-pulse mb-6"></div>
-      
-      <div className="flex overflow-x-hidden space-x-3 sm:space-x-4">
-        {[...Array(5)].map((_, i) => (
-          <div 
-            key={i} 
-            className="flex-shrink-0 bg-gray-800 animate-pulse rounded" 
-            style={{ 
-              width: '150px',
-              height: '200px',
-              animationDelay: `${i * 0.1}s` 
-            }}
-          ></div>
-        ))}
-      </div>
-    </div>
-  );
-
+    
+    // Add the event listener
+    window.addEventListener('movieRecommendations', handleRecommendEvent);
+    document.addEventListener('movieRecommendations', handleRecommendEvent);
+    
+    // Simulate receiving recommendations to test (remove in production)
+    console.log('Testing event receiver setup');
+    
+    return () => {
+      console.log('Cleaning up event listeners');
+      window.removeEventListener('movieRecommendations', handleRecommendEvent);
+      document.removeEventListener('movieRecommendations', handleRecommendEvent);
+    };
+  }, []);
+  
+  // Separate effect for localStorage
+  useEffect(() => {
+    // Save to local storage when recommendations change
+    if (recommendations) {
+      console.log('Saving recommendations to localStorage');
+      localStorage.setItem('lastRecommendations', JSON.stringify(recommendations));
+      localStorage.setItem('lastSelectedGenres', JSON.stringify(selectedGenres));
+    }
+  }, [recommendations, selectedGenres]);
+  
+  // Load from local storage on component mount
+  useEffect(() => {
+    const savedRecommendations = localStorage.getItem('lastRecommendations');
+    const savedGenres = localStorage.getItem('lastSelectedGenres');
+    
+    if (savedRecommendations && savedGenres) {
+      setRecommendations(JSON.parse(savedRecommendations));
+      setSelectedGenres(JSON.parse(savedGenres));
+      setIsVisible(true);
+    }
+  }, []);
+  
+  if (!isVisible || !recommendations || recommendations.length === 0) {
+    return null;
+  }
+  
   return (
-    <div className="bg-black text-white pb-8 relative">
-      <div className="container mx-auto px-4 pt-6">
-        {isLoading ? (
-          <RecommendationSkeleton />
-        ) : (
-          <>
-            <div className="mb-4">
-              <h2 className="text-lg sm:text-2xl font-bold mb-2">Recommended For You</h2>
-              <p className="text-xs sm:text-sm text-gray-400">Based on your watching history and preferences</p>
-            </div>
-            
-            {/* Recommendations Row */}
-            <div className="relative py-2" ref={rowRef}>
-              {/* Left Scroll Button */}
-              {isScrollable && scrollPosition > 20 && (
-                <button 
-                  className="absolute left-0 z-10 h-full flex items-center justify-center pl-1 pr-2 bg-black/30 hover:bg-black/60"
-                  onClick={() => scroll('left')}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-              )}
-              
-              {/* Recommendation Cards */}
-              <div 
-                ref={contentRef}
-                className="flex space-x-3 sm:space-x-4 overflow-x-auto scrollbar-hide"
-                style={{ 
-                  scrollBehavior: 'smooth',
-                  msOverflowStyle: 'none',
-                  scrollbarWidth: 'none'
-                }}
-              >
-                {recommendations.map(movie => (
-                  <div 
-                    key={movie.id} 
-                    className="flex-shrink-0"
-                    style={{ width: 'calc(33.333% - 12px)', maxWidth: '180px' }}
-                    onClick={() => handleRecommendEvent(movie)}
-                  >
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
-              </div>
-              
-              {/* Right Scroll Button */}
-              {isScrollable && scrollPosition < (contentRef.current?.scrollWidth - rowRef.current?.clientWidth - 20) && (
-                <button 
-                  className="absolute right-0 top-0 z-10 h-full flex items-center justify-center pl-2 pr-1 bg-black/30 hover:bg-black/60"
-                  onClick={() => scroll('right')}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </>
-        )}
+    <div 
+      id="recommendSection" 
+      className="w-full px-2 sm:px-4 md:px-12 animate-fadeIn pt-4 sm:pt-6 md:pt-0 md:bg-transparent bg-[#0a0a0a] rounded-t-lg"
+      style={{
+        animation: 'fadeIn 0.5s ease-in-out'
+      }}
+    >
+      {/* Section title and separator for mobile and tablet */}
+      <div className="mb-4 md:hidden">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 fill-current mr-2" viewBox="0 0 111 30">
+            <path d="M105.06233,14.2806261 L110.999156,30 C109.249227,29.7497422 107.500234,29.4366857 105.718437,29.1554972 L102.374168,20.4686475 L98.9371075,28.4375293 C97.2499766,28.1563408 95.5928391,28.061674 93.9057081,27.8432843 L99.9372012,14.0931671 L94.4680851,-5.68434189e-14 L99.5313525,-5.68434189e-14 L102.593495,7.87421502 L105.874965,-5.68434189e-14 L110.999156,-5.68434189e-14 L105.06233,14.2806261 Z M90.4686475,-5.68434189e-14 L85.8749649,-5.68434189e-14 L85.8749649,27.2499766 C87.3746368,27.3437061 88.9371075,27.4055675 90.4686475,27.5930265 L90.4686475,-5.68434189e-14 Z M81.9055207,26.93692 C77.7186241,26.6557316 73.5307901,26.4064111 69.250164,26.3117443 L69.250164,-5.68434189e-14 L73.9366389,-5.68434189e-14 L73.9366389,21.8745899 C76.6248008,21.9373887 79.3120255,22.1557784 81.9055207,22.2804387 L81.9055207,26.93692 Z M64.2496954,10.6561065 L64.2496954,15.3435186 L57.8442216,15.3435186 L57.8442216,25.9996251 L53.2186709,25.9996251 L53.2186709,-5.68434189e-14 L66.3436123,-5.68434189e-14 L66.3436123,4.68741213 L57.8442216,4.68741213 L57.8442216,10.6561065 L64.2496954,10.6561065 Z M45.3435186,4.68741213 L45.3435186,26.2498828 C43.7810479,26.2498828 42.1876465,26.2498828 40.6561065,26.3117443 L40.6561065,4.68741213 L35.8121661,4.68741213 L35.8121661,-5.68434189e-14 L50.2183897,-5.68434189e-14 L50.2183897,4.68741213 L45.3435186,4.68741213 Z M30.749836,15.5928391 C28.687787,15.5928391 26.2498828,15.5928391 24.4999531,15.6875059 L24.4999531,22.6562939 C27.2499766,22.4678976 30,22.2495079 32.7809542,22.1557784 L32.7809542,26.6557316 L19.812541,27.6876933 L19.812541,-5.68434189e-14 L32.7809542,-5.68434189e-14 L32.7809542,4.68741213 L24.4999531,4.68741213 L24.4999531,10.9991564 C26.3126816,10.9991564 29.0936358,10.9054269 30.749836,10.9054269 L30.749836,15.5928391 Z M4.78114163,12.9684132 L4.78114163,29.3429562 C3.09401069,29.5313525 1.59340144,29.7497422 0,30 L0,-5.68434189e-14 L4.4690224,-5.68434189e-14 L10.562377,17.0315868 L10.562377,-5.68434189e-14 L15.2497891,-5.68434189e-14 L15.2497891,28.061674 C13.5935889,28.3437998 11.906458,28.4375293 10.1246602,28.6868498 L4.78114163,12.9684132 Z"></path>
+          </svg>
+          Your picks
+        </h2>
+        <div className="w-full h-px bg-gray-800"></div>
+      </div>
+      
+      <div className="flex overflow-x-auto space-x-2 sm:space-x-4 pb-2 sm:pb-4 scrollbar-hide -mx-1 px-1">
+        {recommendations.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
       </div>
     </div>
   );

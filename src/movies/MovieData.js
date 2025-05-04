@@ -27,7 +27,7 @@ export const dummyMovies = {
       id: 3, 
       title: "Jewel Thief", 
       posterUrl: "https://dnm.nflximg.net/api/v6/Qs00mKCpRvrkl3HZAN5KwEL1kpE/AAAABURMBfHrEwQ19rCnJclEbzQrz0NWxsQLyUb8wTpWooTppv5XsXiAb6Iq1qJN1UT7hb3YJbRpz_H4UReDLZHQPkQnqXhAtKtSx7Sk2d4khbjO8_lq3MTNZmIBBD6k61L_msdX.jpg?r=e97", 
-      previewUrl: "Jewel_Thief.mp4",
+      previewUrl: "Jewel_Thief.mp4 ",
       isTopTen: true, 
       recentlyAdded: true,
       description: "A master thief takes on his greatest heist yet",

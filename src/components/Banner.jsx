@@ -281,7 +281,7 @@ export default function NetflixBanner() {
 
   return (
     <div 
-      className={`relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'}`}
+      className={`relative  h-[80vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'} mb-8 sm:mb-12 md:mb-0`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -299,7 +299,7 @@ export default function NetflixBanner() {
               muted={isMuted}
               playsInline
               preload="auto"
-              className={`w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`w-full h-full sm:min-h-[90vh] lg:min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onError={(e) => {
                 console.error("Video error:", e);
                 setIsPlaying(false);
@@ -314,39 +314,27 @@ export default function NetflixBanner() {
             <img
               src={currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`hidden md:block w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`hidden sm:block w-full h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
             <img
-              src={currentMovie.mobileImage}
+              src={currentMovie.mobileImage || currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`md:hidden w-full h-full min-h-[105vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`sm:hidden w-full h-full object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
           </div>
         )}
         
-        {/* Netflix-style overlay gradients with radial emphasis */}
-        <div className="absolute inset-0 h-[105vh]">
-          {/* Corner vignettes using multiple box-shadows for radial effect */}
-          {/* <div className="absolute inset-0 shadow-[inset_0_0_100px_50px_rgba(0,0,0,0.6),inset_0_0_300px_rgba(0,0,0,0.4)]" /> */}
-          
-          {/* Left edge vignette */}
-          {/* <div className="absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-black/40 to-transparent" /> */}
-          
-          {/* Right edge vignette */}
-          {/* <div className="absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-black/40 to-transparent" /> */}
-          
-          {/* Top vignette */}
-          {/* <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/40 to-transparent" /> */}
-          
+        {/* Bottom gradient overlay - stronger on mobile */}
+        <div className="absolute inset-0 h-[90vh] lg:h-[105vh]">
           {/* Bottom gradient - smooth transition to card section */}
-          <div className="absolute bottom-0 inset-x-0 h-2/3 bg-gradient-to-t from-[#141414] via-[#141414]/10 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-2/3 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent md:via-[#141414]/10" />
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <div className="absolute inset-y-0 left-2 flex items-center z-20">
+      {/* Navigation Arrows - hide on small screens */}
+      <div className="absolute inset-y-0 left-2 hidden sm:flex items-center z-20">
         <button
           onClick={goToPrevious}
           className="p-2 bg-black/30 hover:bg-black/60 rounded-full transition-colors duration-300"
@@ -356,7 +344,7 @@ export default function NetflixBanner() {
         </button>
       </div>
       
-      <div className="absolute inset-y-0 right-2 flex items-center z-20">
+      <div className="absolute inset-y-0 right-2 hidden sm:flex items-center z-20">
         <button
           onClick={goToNext}
           className="p-2 bg-black/30 hover:bg-black/60 rounded-full transition-colors duration-300"
@@ -374,76 +362,100 @@ export default function NetflixBanner() {
         {isPlaying && (isHovering || isMobile) && (
           <button 
             onClick={toggleMute}
-            className="absolute bottom-0 right-6 md:right-12 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 p-3 rounded-full transition-all duration-300 z-20"
+            className="absolute bottom-8 right-4 sm:bottom-0 sm:right-6 md:right-12 transform sm:-translate-y-1/2 bg-black/40 hover:bg-black/60 p-2 sm:p-3 rounded-full transition-all duration-300 z-20"
           >
             {isMuted ? (
-              <VolumeX className="w-6 h-6 text-white" />
+              <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             ) : (
-              <Volume2 className="w-6 h-6 text-white" />
+              <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             )}
           </button>
         )}
 
-        <div className="container mx-auto px-4 md:px-12 pb-6 md:pb-16">
+        <div className="container mx-auto px-4 sm:px-6 md:px-12 pb-4 sm:pb-6 md:pb-16">
           <div className="max-w-md sm:max-w-lg md:max-w-2xl">
-            {/* Top 10 Badge and Rank - Responsive sizing */}
-            {currentMovie.topTen && (
-              <div className="flex items-center mb-1 md:mb-2">
-                <span className="bg-red-600 text-white text-xs font-bold px-1 py-0.5 md:px-2 md:py-1 rounded mr-2">TOP 10</span>
-                <span className="text-white text-sm md:text-lg font-semibold">#{currentIndex + 1} in TV Shows Today</span>
+              {/* Mobile content - positioned at bottom */}
+              <div className="md:hidden flex flex-col justify-end w-full">
+                {/* Title */}
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-5 drop-shadow-lg shadow-black">
+                  {currentMovie.title}
+                </h1>
+                
+                {/* Action buttons */}
+                <div className="flex flex-row gap-3 w-full">
+                  <button 
+                    className="flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-black px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200"
+                    onClick={handlePlayClick}
+                  >
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
+                    <span>Play</span>
+                  </button>
+                  <button 
+                    className="flex items-center justify-center gap-1.5 bg-gray-500/40 hover:bg-gray-500/60 text-white px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200"
+                    onClick={handleMoreInfoClick}
+                  >
+                    <Info className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>More Info</span>
+                  </button>
+                </div>
               </div>
-            )}
-            
-            {/* Title - Responsive font size with text shadow for better visibility */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-4 drop-shadow-lg shadow-black">
-              {currentMovie.title}
-            </h1>
-            
-            {/* Description - Fewer lines on mobile with text shadow */}
-            <p className="text-sm sm:text-base md:text-lg text-white/90 mb-3 md:mb-6 line-clamp-2 md:line-clamp-3 drop-shadow-md">
-              {currentMovie.description}
-            </p>
-            
-            {/* Match percentage - Mobile only */}
-            <div className="md:hidden flex items-center mb-3">
-              <span className="text-green-500 font-bold text-sm">{currentMovie.matchPercentage}% Match</span>
-            </div>
-            
-            {/* Action buttons - Smaller on mobile */}
-            <div className="flex flex-row gap-2 md:gap-4 mb-3 md:mb-6">
-              <button 
-                className="flex items-center text-white justify-center gap-1 md:gap-2 bg-white hover:bg-white/10 text-black px-4 md:px-8 py-1.5 md:py-3 rounded font-medium text-sm md:text-lg transition-colors duration-200"
-                onClick={handlePlayClick}
-              >
-                <Play className="w-4 h-4 md:w-6 md:h-6 text-white" />
-                <span>Play</span>
-              </button>
-              <button 
-                className="flex items-center justify-center gap-1 md:gap-2 bg-white/20 hover:bg-white/30 text-white px-4 md:px-8 py-1.5 md:py-3 rounded font-medium text-sm md:text-lg border border-white/20 transition-colors duration-200"
-                onClick={handleMoreInfoClick}
-              >
-                <Info className="w-4 h-4 md:w-5 md:h-5" />
-                <span>More Info</span>
-              </button>
-            </div>
-            
-            {/* Meta Info - Responsive spacing and font size */}
-            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-white/80 text-xs md:text-sm">
-              <span className="border border-white/30 px-1 py-0.5 md:px-2 md:py-0.5 rounded">{currentMovie.maturityRating}</span>
-              <span>{currentMovie.year}</span>
-              {currentMovie.seasons && <span>{currentMovie.seasons} Seasons</span>}
-              <span className="hidden sm:inline">{currentMovie.origin}</span>
-            </div>
+
+              {/* Desktop content */}
+              <div className="hidden md:block">
+                {/* Top 10 Badge and Rank */}
+                {currentMovie.topTen && (
+                  <div className="flex items-center mb-2">
+                    <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">TOP 10</span>
+                    <span className="text-white text-lg font-semibold">#{currentIndex + 1} in TV Shows Today</span>
+                  </div>
+                )}
+                
+                {/* Title */}
+                <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg shadow-black">
+                  {currentMovie.title}
+                </h1>
+                
+                {/* Description */}
+                <p className="text-base md:text-lg text-white/90 mb-6 line-clamp-3 drop-shadow-md">
+                  {currentMovie.description}
+                </p>
+                
+                {/* Action buttons */}
+                <div className="flex flex-row gap-4 mb-6">
+                  <button 
+                    className="flex items-center justify-center gap-2 bg-white hover:bg-white/10 text-black px-8 py-3 rounded font-medium text-lg transition-colors duration-200"
+                    onClick={handlePlayClick}
+                  >
+                    <Play className="w-6 h-6 text-black" />
+                    <span>Play</span>
+                  </button>
+                  <button 
+                    className="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded font-medium text-lg border border-white/20 transition-colors duration-200"
+                    onClick={handleMoreInfoClick}
+                  >
+                    <Info className="w-5 h-5" />
+                    <span>More Info</span>
+                  </button>
+                </div>
+                
+                {/* Meta Info */}
+                <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
+                  <span className="border border-white/30 px-2 py-0.5 rounded">{currentMovie.maturityRating}</span>
+                  <span>{currentMovie.year}</span>
+                  {currentMovie.seasons && <span>{currentMovie.seasons} Seasons</span>}
+                  <span className="hidden sm:inline">{currentMovie.origin}</span>
+                </div>
+              </div>
           </div>
         </div>
       </div>
       
       {/* Movie indicator dots */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+      <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {movies.map((_, index) => (
           <div 
             key={index}
-            className={`h-1.5 w-1.5 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-white/30'}`}
+            className={`h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-white/30'}`}
           />
         ))}
       </div>

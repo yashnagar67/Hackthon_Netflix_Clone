@@ -242,6 +242,9 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
   // Format the movie genres for display
   const genreDisplay = movie.genre ? movie.genre.slice(0, 3).join(' • ') : '';
   
+  // Fallback poster URL for when images fail to load
+  const fallbackPosterUrl = "https://via.placeholder.com/342x513?text=No+Image";
+
   return (
     <>
       <div
@@ -254,7 +257,7 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
         {isLoading ? (
           <CardSkeleton />
         ) : (
-          <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-50 md:h-10 lg:w-55 lg:h-30 rounded overflow-hidden transition-shadow duration-300">
+          <div className="relative w-55 h-30 sm:w-40 sm:h-60 md:w-50 md:h-10 lg:w-55 lg:h-30 rounded overflow-hidden transition-shadow duration-300">
             {/* Image with Loading State */}
             <div className="w-full h-full">
               {!posterLoaded && (
@@ -268,9 +271,14 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
               <img
                 src={movie.posterUrl}
                 alt={movie.title}
-                className={`w-full h-full object-fill ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-cover ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setPosterLoaded(true)}
-                onError={() => setPosterLoaded(true)}
+                onError={(e) => {
+                  // If the image fails to load, replace with fallback
+                  console.error(`Failed to load image for ${movie.title}:`, e);
+                  e.target.src = fallbackPosterUrl;
+                  setPosterLoaded(true);
+                }}
               />
             </div>
             {/* Dark overlay for better text readability on hover */}
@@ -321,7 +329,7 @@ const MovieCard = ({ movie, hoveredId, setHoveredId }) => {
               <video
                 ref={videoRef}
                   src={movie.previewUrl}
-                poster={movie.posterUrl}
+                poster={movie.posterUrl || fallbackPosterUrl}
                 muted={isMuted}
                   autoPlay
                   playsInline
