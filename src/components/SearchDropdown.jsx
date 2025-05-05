@@ -12,7 +12,7 @@ import {
 // API base URL (deployed backend)
 const API_BASE_URL = 'https://movieadminpanel.onrender.com/api/search';
 
-const SearchDropdown = ({ searchQuery, onSelectMovie }) => {
+const SearchDropdown = ({ searchQuery, onSelectMovie, isMobile = false }) => {
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [clickedMovies, setClickedMovies] = useState([]);
@@ -154,11 +154,65 @@ const SearchDropdown = ({ searchQuery, onSelectMovie }) => {
     };
   }, [searchQuery, popularMovies, clickedMovies]);
 
-  // Don't display anything if there's no search query
-  if (!searchQuery.trim()) {
+  // Don't display anything if there's no search query and not in mobile mode
+  if (!searchQuery.trim() && !isMobile) {
     return null;
   }
 
+  // For mobile display full height container
+  if (isMobile) {
+    return (
+      <div
+        ref={dropdownRef}
+        className="w-full bg-black/0"
+        style={{
+          maxHeight: '75vh',
+          overflowY: 'auto'
+        }}
+      >
+        {/* Show "Searching..." loader when API is being called */}
+        {isApiSearching && (
+          <div className="p-3 text-gray-400 text-sm text-center flex items-center justify-center space-x-2">
+            <div className="loader w-4 h-4 rounded-full border-2 border-gray-800 border-t-red-500 animate-spin"></div>
+            <span>Searching movies...</span>
+          </div>
+        )}
+        
+        {/* Show "No results" when appropriate */}
+        {noResults && !isLoading && (
+          <div className="p-8 text-white text-center">
+            <p className="mb-2 text-lg">No results found for "{searchQuery}"</p>
+            <p className="text-gray-400">Try a different search term</p>
+          </div>
+        )}
+        
+        {/* Display search results */}
+        {movies.length > 0 && (
+          <div className="divide-y divide-gray-800">
+            {movies.length > 0 && (
+              <div className="p-3 bg-gray-900/50 text-sm text-gray-400">
+                {movies.length === 1 ? '1 result' : `${movies.length} results`} 
+                {resultSource === 'clicked' ? ' from your history' :
+                 resultSource === 'popular' ? ' from popular movies' : 
+                 resultSource === 'cache' ? ' from cache' : 
+                 isApiSearching ? ' (updating...)' : ' from search'}
+              </div>
+            )}
+            
+            {movies.map((movie) => (
+              <MovieSuggestionCard
+                key={movie.id}
+                movie={movie}
+                onSelect={onSelectMovie}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop display
   return (
     <div
       ref={dropdownRef}

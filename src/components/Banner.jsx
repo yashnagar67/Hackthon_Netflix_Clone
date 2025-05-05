@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Play, Info, VolumeX, Volume2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useMood } from "../context/MoodContext";
 
 // Updated movie data to use Stranger Things
 const movies = [
@@ -7,7 +8,7 @@ const movies = [
     id: 1,
     title: "Mickey 17",
     desktopImage: "https://image.tmdb.org/t/p/original/iimkH5M5VfkIegy68LrJiFXOnza.jpg", // Official poster
-    mobileImage: "/api/placeholder/800/1200",
+    mobileImage: "https://image.tmdb.org/t/p/w780/iimkH5M5VfkIegy68LrJiFXOnza.jpg", // Using optimized image for mobile
     logoImage: "/api/placeholder/300/120",
     videoPreview: "mickey17.mp4", // Local or CDN video preview
     description: "An expendable named Mickey 17 is sent on a dangerous mission to colonize an ice world, only to uncover dark secrets about his existence and the colony's future.",
@@ -25,7 +26,7 @@ const movies = [
     id: 4,
     title: "Squid Game",
     desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/hOsTmukXHBNsxbTfwGYTzMTOkS1.jpg",
-    mobileImage: "/api/placeholder/800/1200",
+    mobileImage: "https://media.themoviedb.org/t/p/w780/hOsTmukXHBNsxbTfwGYTzMTOkS1.jpg",
     logoImage: "/api/placeholder/300/120",
     videoPreview: "Squid_games.mp4",
     description: "Hundreds of cash-strapped players accept a strange invitation to compete in children's games. Inside, a tempting prize awaits — with deadly high stakes.",
@@ -44,7 +45,7 @@ const movies = [
   id: 2,
   title: "Stranger Things",
   desktopImage: "https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
-  mobileImage: "/api/placeholder/800/1200",
+  mobileImage: "https://image.tmdb.org/t/p/w780/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
   logoImage: "/api/placeholder/300/120",
   videoPreview: "Stanger_things.mp4",
   description: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.",
@@ -64,7 +65,7 @@ const movies = [
   id: 3,
   title: "Money Heist",
   desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/mxFvdWtK26oR7jR8suZKro6GT9U.jpg",
-  mobileImage: "/api/placeholder/800/1200",
+  mobileImage: "https://media.themoviedb.org/t/p/w780/mxFvdWtK26oR7jR8suZKro6GT9U.jpg",
   logoImage: "/api/placeholder/300/120",
   videoPreview: "Money_heist.mp4",
   description: "Eight thieves take hostages and lock themselves in the Royal Mint of Spain as a criminal mastermind manipulates the police to carry out his plan.",
@@ -83,8 +84,8 @@ const movies = [
 {
   id: 4,
   title: "Chhava",
-  desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/kKOV3Y3FlWVNzbM7cXKKeN4ZbfW.jpg", // Placeholder image (replace with real one)
-  mobileImage: "/api/placeholder/800/1200",
+  desktopImage: "https://media.themoviedb.org/t/p/w1000_and_h563_face/kKOV3Y3FlWVNzbM7cXKKeN4ZbfW.jpg",
+  mobileImage: "https://media.themoviedb.org/t/p/w780/kKOV3Y3FlWVNzbM7cXKKeN4ZbfW.jpg",
   logoImage: "/api/placeholder/300/120",
   videoPreview: "Chhaava.mp4",
   description: "An epic historical drama depicting the bravery, leadership, and sacrifice of Chhatrapati Sambhaji Maharaj in the Maratha Empire.",
@@ -110,6 +111,7 @@ export default function NetflixBanner() {
   const [showPoster, setShowPoster] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { currentMood, moodThemes } = useMood();
   
   const videoRef = useRef(null);
   const slideTimerRef = useRef(null);
@@ -118,9 +120,14 @@ export default function NetflixBanner() {
   const previewDurationRef = useRef(null);
   
   const currentMovie = movies[currentIndex];
-  const INITIAL_POSTER_DELAY = 2000; // 2 seconds
-  const PREVIEW_DURATION = 8000; // 8 seconds (within 7-10 seconds range)
+  const INITIAL_POSTER_DELAY = 1000; // 2 seconds
+  const PREVIEW_DURATION = 20000; // 20 seconds (increased from previous setting)
   const TRANSITION_DURATION = 800; // 0.8 seconds for smooth fade
+
+  // Get current mood colors for neon effects
+  const moodColors = moodThemes[currentMood]?.colors || moodThemes.default.colors;
+  const neonPrimary = moodColors.primary;
+  const neonAccent = moodColors.accent;
 
   // Check if device is mobile
   useEffect(() => {
@@ -281,7 +288,7 @@ export default function NetflixBanner() {
 
   return (
     <div 
-      className={`relative  h-[80vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'}  md:mb-0`}
+      className={`relative h-[80vh] md:h-[80vh] lg:h-[90vh] w-full overflow-visible transition-opacity duration-${TRANSITION_DURATION} ${isTransitioning ? 'opacity-70' : 'opacity-100'} md:mb-0`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -314,14 +321,18 @@ export default function NetflixBanner() {
             <img
               src={currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`hidden sm:block w-full  object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`hidden sm:block w-full object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
             />
             <img
               src={currentMovie.mobileImage || currentMovie.desktopImage}
               alt={currentMovie.title}
-              className={`sm:hidden w-full min-h-[10vh] object-cover object-center transition-opacity duration-${TRANSITION_DURATION}`}
+              className={`sm:hidden w-full h-[80vh] object-cover object-top transition-opacity duration-${TRANSITION_DURATION}`}
               onLoad={() => setIsLoaded(true)}
+              onError={(e) => {
+                console.error("Mobile image error, fallback to desktop:", e);
+                e.target.src = currentMovie.desktopImage;
+              }}
             />
           </div>
         )}
@@ -329,7 +340,68 @@ export default function NetflixBanner() {
         {/* Bottom gradient overlay - stronger on mobile */}
         <div className="absolute inset-0 h-[120vh]">
           {/* Bottom gradient - smooth transition to card section */}
-          <div className="absolute bottom-0 inset-x-0 h-[105vh] bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent md:via-[#141414]/10" />
+          <div className="absolute bottom-0 inset-x-0 h-[105vh] bg-gradient-to-t from-[var(--mood-background,#141414)] via-[var(--mood-background,#141414)]/20 to-transparent md:via-[var(--mood-background,#141414)]/10" />
+        </div>
+
+        {/* Neon light effects based on current mood */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Top neon border */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-[2px] opacity-60"
+            style={{ 
+              background: neonPrimary,
+              boxShadow: `0 0 10px ${neonPrimary}, 0 0 20px ${neonPrimary}, 0 0 30px ${neonPrimary}`,
+              animation: 'neonPulse 3s ease-in-out infinite alternate'
+            }}
+          />
+          
+          {/* Corner neon accents */}
+          <div className="absolute top-0 left-0 w-[120px] h-[120px] pointer-events-none">
+            <div 
+              className="absolute top-0 left-0 w-[3px] h-[120px]"
+              style={{ 
+                background: neonAccent,
+                boxShadow: `0 0 10px ${neonAccent}, 0 0 20px ${neonAccent}`,
+                animation: 'neonPulse 3s ease-in-out infinite alternate'
+              }}
+            />
+            <div 
+              className="absolute top-0 left-0 w-[120px] h-[3px]"
+              style={{ 
+                background: neonAccent,
+                boxShadow: `0 0 10px ${neonAccent}, 0 0 20px ${neonAccent}`,
+                animation: 'neonPulse 3s ease-in-out infinite alternate 0.3s'
+              }}
+            />
+          </div>
+          
+          <div className="absolute top-0 right-0 w-[120px] h-[120px] pointer-events-none">
+            <div 
+              className="absolute top-0 right-0 w-[3px] h-[120px]"
+              style={{ 
+                background: neonAccent,
+                boxShadow: `0 0 10px ${neonAccent}, 0 0 20px ${neonAccent}`,
+                animation: 'neonPulse 3s ease-in-out infinite alternate 0.6s'
+              }}
+            />
+            <div 
+              className="absolute top-0 right-0 w-[120px] h-[3px]"
+              style={{ 
+                background: neonAccent,
+                boxShadow: `0 0 10px ${neonAccent}, 0 0 20px ${neonAccent}`,
+                animation: 'neonPulse 3s ease-in-out infinite alternate 0.9s'
+              }}
+            />
+          </div>
+          
+          {/* Soft ambient glow overlay - color depends on mood */}
+          <div 
+            className="absolute inset-0 mix-blend-soft-light opacity-30"
+            style={{
+              background: `radial-gradient(circle at center, ${neonPrimary}22 0%, transparent 70%)`,
+              animation: 'softGlow 8s ease-in-out infinite alternate',
+            }}
+          />
         </div>
       </div>
 
@@ -377,22 +449,28 @@ export default function NetflixBanner() {
               {/* Mobile content - positioned at bottom */}
               <div className="md:hidden flex flex-col justify-end w-full">
                 {/* Title */}
-                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-5 drop-shadow-lg shadow-black">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-5 drop-shadow-lg shadow-black mood-text-glow">
                   {currentMovie.title}
                 </h1>
                 
-                {/* Action buttons */}
+                {/* Action buttons with neon effect */}
                 <div className="flex flex-row gap-3 w-full">
                   <button 
-                    className="flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-black px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200"
+                    className="flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-black px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200 mood-button-glow"
                     onClick={handlePlayClick}
+                    style={{
+                      boxShadow: `0 0 10px rgba(255, 255, 255, 0.5)`,
+                    }}
                   >
                     <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
                     <span>Play</span>
                   </button>
                   <button 
-                    className="flex items-center justify-center gap-1.5 bg-gray-500/40 hover:bg-gray-500/60 text-white px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200"
+                    className="flex items-center justify-center gap-1.5 bg-gray-500/40 hover:bg-gray-500/60 text-white px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200 mood-button-glow"
                     onClick={handleMoreInfoClick}
+                    style={{
+                      boxShadow: `0 0 10px ${neonPrimary}44`,
+                    }}
                   >
                     <Info className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>More Info</span>
@@ -402,16 +480,28 @@ export default function NetflixBanner() {
 
               {/* Desktop content */}
               <div className="hidden md:block">
-                {/* Top 10 Badge and Rank */}
+                {/* Top 10 Badge and Rank with neon effect */}
                 {currentMovie.topTen && (
                   <div className="flex items-center mb-2">
-                    <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">TOP 10</span>
+                    <span 
+                      className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2 mood-tag-glow"
+                      style={{
+                        boxShadow: `0 0 8px ${neonPrimary}, 0 0 12px ${neonPrimary}44`,
+                      }}
+                    >
+                      TOP 10
+                    </span>
                     <span className="text-white text-lg font-semibold">#{currentIndex + 1} in TV Shows Today</span>
                   </div>
                 )}
                 
-                {/* Title */}
-                <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg shadow-black">
+                {/* Title with neon glow */}
+                <h1 
+                  className="text-4xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg shadow-black mood-text-glow"
+                  style={{
+                    textShadow: `0 0 10px ${neonPrimary}88, 0 0 20px ${neonPrimary}44`,
+                  }}
+                >
                   {currentMovie.title}
                 </h1>
                 
@@ -420,27 +510,42 @@ export default function NetflixBanner() {
                   {currentMovie.description}
                 </p>
                 
-                {/* Action buttons */}
+                {/* Action buttons with neon effect */}
                 <div className="flex flex-row gap-4 mb-6">
                   <button 
-                    className="flex items-center justify-center gap-2 bg-white hover:bg-white/10 text-black px-8 py-3 rounded font-medium text-lg transition-colors duration-200"
+                    className="flex items-center justify-center gap-2 bg-white hover:bg-white/90 text-black px-8 py-3 rounded font-medium text-lg transition-colors duration-200 mood-button-glow"
                     onClick={handlePlayClick}
+                    style={{
+                      boxShadow: `0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.4)`,
+                    }}
                   >
                     <Play className="w-6 h-6 text-black" />
                     <span>Play</span>
                   </button>
                   <button 
-                    className="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded font-medium text-lg border border-white/20 transition-colors duration-200"
+                    className="flex items-center justify-center gap-2 bg-[var(--mood-secondary,#141414)]/60 hover:bg-[var(--mood-secondary,#141414)]/80 text-[var(--mood-text,#ffffff)] px-8 py-3 rounded font-medium text-lg border border-white/20 transition-colors duration-200 mood-button-glow"
                     onClick={handleMoreInfoClick}
+                    style={{
+                      boxShadow: `0 0 10px ${neonAccent}44, 0 0 20px ${neonAccent}22`,
+                    }}
                   >
                     <Info className="w-5 h-5" />
                     <span>More Info</span>
                   </button>
                 </div>
                 
-                {/* Meta Info */}
-                <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
-                  <span className="border border-white/30 px-2 py-0.5 rounded">{currentMovie.maturityRating}</span>
+                {/* Meta Info with subtle neon borders */}
+                <div 
+                  className="flex flex-wrap items-center gap-4 text-[var(--mood-text,#ffffff)]/80 text-sm"
+                >
+                  <span 
+                    className="border border-[var(--mood-text,#ffffff)]/30 px-2 py-0.5 rounded mood-meta-glow"
+                    style={{
+                      boxShadow: `0 0 5px ${neonPrimary}33`,
+                    }}
+                  >
+                    {currentMovie.maturityRating}
+                  </span>
                   <span>{currentMovie.year}</span>
                   {currentMovie.seasons && <span>{currentMovie.seasons} Seasons</span>}
                   <span className="hidden sm:inline">{currentMovie.origin}</span>
@@ -450,12 +555,15 @@ export default function NetflixBanner() {
         </div>
       </div>
       
-      {/* Movie indicator dots */}
+      {/* Movie indicator dots with neon effect */}
       <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {movies.map((_, index) => (
           <div 
             key={index}
             className={`h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-white/30'}`}
+            style={{
+              boxShadow: index === currentIndex ? `0 0 5px ${neonPrimary}, 0 0 10px ${neonPrimary}` : 'none',
+            }}
           />
         ))}
       </div>

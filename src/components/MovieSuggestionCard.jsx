@@ -307,7 +307,7 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                 )}
                 <img
                   src={movie.poster_path 
-                    ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w342${movie.poster_path}`)}` 
+                    ? `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w342${movie.poster_path}`)}` 
                     : 'https://via.placeholder.com/342x513?text=No+Image'}
                   alt={movie.title}
                   className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
@@ -392,9 +392,9 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                 )}
                 <img
                   src={movie.backdrop_path 
-                    ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`)}` 
+                    ? `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`)}` 
                     : (movie.poster_path 
-                        ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.poster_path}`)}` 
+                        ? `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.poster_path}`)}` 
                         : 'https://via.placeholder.com/780x439?text=No+Image')}
                   alt={movie.title}
                   className={`w-full h-full object-cover ${backdropLoaded ? 'opacity-100' : 'opacity-0'}`}

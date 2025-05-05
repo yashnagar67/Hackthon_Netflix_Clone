@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/mood-animations.css";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -13,15 +14,67 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Mood Theme Variables with Netflix defaults */
+  --mood-primary: #e50914;
+  --mood-secondary: #141414;
+  --mood-background: #141414;
+  --mood-text: #ffffff;
+  --mood-card-bg: #1f1f1f;
+  --mood-button-bg: #e50914;
+  --mood-button-text: #ffffff;
+  --mood-accent: #e50914;
+  --mood-hover: #b20710;
+  
+  /* Smooth transitions for all theme changes */
+  transition: color 0.5s ease, 
+              background-color 0.5s ease,
+              border-color 0.5s ease,
+              box-shadow 0.5s ease;
 }
 
 /* Netflix-specific styles */
 body {
   margin: 0;
   padding: 0;
-  background-color: #141414;
-  color: #fff;
+  background-color: var(--mood-background, #141414);
+  color: var(--mood-text, #fff);
   overflow-x: hidden;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhance button transitions for mood-specific colors */
+button {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease !important;
+}
+
+/* Add transitions to cards for theme changes */
+.card, 
+.bg-\[var\(--mood-card-bg\,\#1f1f1f\)\],
+.bg-\[var\(--mood-secondary\,\#141414\)\] {
+  transition: background-color 0.5s ease, 
+              border-color 0.5s ease,
+              box-shadow 0.5s ease !important;
+}
+
+/* Netflix cinematic transitions for text */
+h1, h2, h3, h4, h5, h6, p, span, a {
+  transition: color 0.4s ease !important;
+}
+
+/* Enhance SVG transitions */
+svg, path {
+  transition: fill 0.5s ease, stroke 0.5s ease !important;
+}
+
+/* Enhanced focus for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--mood-primary, #e50914) !important;
+  outline-offset: 2px;
 }
 
 /* Progress Bar Animation */

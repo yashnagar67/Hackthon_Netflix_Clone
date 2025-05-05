@@ -1,17 +1,47 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
+import DesktopNavbar from './components/DesktopNavbar'
+import MobileNavbar from './components/MobileNavbar'
 import NetflixBrowseWithStyles from './components/Banner'
 import NetflixBrowse from './movies/MovieCard/MovieCard'
 import RecommendationSection from './components/RecommendationSection'
 import Footer from './components/Footer'
+import { MoodProvider } from './context/MoodContext'
+import MoodIndicator from './components/MoodIndicator'
+import MoodButton from './components/MoodButton'
+import Navbar from './components/Navbar'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
+  
+  // Check if the screen is mobile or desktop
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   return (
-    <>
-      <Navbar/>
+    <MoodProvider>
+      {/* Conditionally render original navbar based on screen size */}
+      {isMobile ? <MobileNavbar /> : <DesktopNavbar />}
+      
+      {/* Floating mood button & indicator */}
+      <MoodButton />
+      <MoodIndicator />
+      
       <Routes>
         <Route path="/" element={
           <>
@@ -29,7 +59,7 @@ function App() {
         <Route path="/recommended" element={<div>Search Page</div>} />
       </Routes>
       <Footer />
-    </>
+    </MoodProvider>
   )
 }
 
