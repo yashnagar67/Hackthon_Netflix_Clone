@@ -33,6 +33,30 @@
               box-shadow 0.5s ease;
 }
 
+/* Base styles */
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  height: auto !important;
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #141414;
+  color: white;
+  font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Reset any potential overrides */
+body.has-mood-animation {
+  height: auto !important;
+  overflow: auto !important;
+  position: relative;
+}
+
 /* Netflix-specific styles */
 body {
   margin: 0;

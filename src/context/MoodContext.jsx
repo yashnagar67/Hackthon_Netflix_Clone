@@ -140,6 +140,19 @@ export const MoodProvider = ({ children }) => {
   const [isWaveAnimating, setIsWaveAnimating] = useState(false);
   const audioRef = useRef(null);
   
+  // Important: Ensure scrolling is enabled as soon as the app loads
+  useEffect(() => {
+    // Enable scrolling on initial load
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    
+    // Clean up function to also ensure scrolling is enabled when component unmounts
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.body.style.height = 'auto';
+    };
+  }, []);
+  
   // Listen for mood preview events (hover effects)
   useEffect(() => {
     const handleMoodPreview = (event) => {

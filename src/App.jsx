@@ -15,6 +15,19 @@ function App() {
   const [count, setCount] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   
+  // Ensure scrolling is enabled immediately when the app loads
+  useEffect(() => {
+    // Enable scrolling
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    
+    // Clean up
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.body.style.height = 'auto';
+    };
+  }, []);
+  
   // Check if the screen is mobile or desktop
   useEffect(() => {
     const checkMobile = () => {

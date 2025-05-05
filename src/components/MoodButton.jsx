@@ -10,6 +10,18 @@ export default function MoodButton() {
   
   const currentTheme = moodThemes[currentMood];
   
+  // Ensure scrolling is enabled when the component mounts
+  useEffect(() => {
+    // Fix initial scrolling issues
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+      document.body.style.height = 'auto';
+    };
+  }, []);
+  
   // Animation effect when mood changes
   useEffect(() => {
     // Listen for mood changes to trigger animations
