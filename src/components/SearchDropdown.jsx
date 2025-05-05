@@ -9,8 +9,8 @@ import {
   searchClickedMovies 
 } from '../utils/searchCache';
 
-// API base URL (local backend)
-const API_BASE_URL = 'http://localhost:5000/api/search';
+// API base URL (deployed backend)
+const API_BASE_URL = 'https://movieadminpanel.onrender.com/api/search';
 
 const SearchDropdown = ({ searchQuery, onSelectMovie }) => {
   const [movies, setMovies] = useState([]);

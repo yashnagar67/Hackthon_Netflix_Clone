@@ -72,7 +72,7 @@ export const dummyMovies = {
     { 
       id: 1, 
       title: "Money Heist", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/2f92nfDnutSdrqEfwiZcOFWuNLH.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/2f92nfDnutSdrqEfwiZcOFWuNLH.jpg")}`, 
       previewUrl: "Money_heist.mp4", 
       isTopTen: true, 
       recentlyAdded: false,
@@ -83,7 +83,7 @@ export const dummyMovies = {
     { 
       id: 2, 
       title: "When Life Gives You Tangerines", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/uTtdSAnWl0i6RBJStz8Gxnph9mx.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/uTtdSAnWl0i6RBJStz8Gxnph9mx.jpg")}`, 
       previewUrl: "When Life Gives You Tangerines.mp4", 
       isTopTen: false, 
       recentlyAdded: true,
@@ -94,7 +94,7 @@ export const dummyMovies = {
     { 
       id: 3, 
       title: "Squid Game", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/hOsTmukXHBNsxbTfwGYTzMTOkS1.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/hOsTmukXHBNsxbTfwGYTzMTOkS1.jpg")}`, 
       previewUrl: "Squid_games.mp4", 
       isTopTen: true, 
       recentlyAdded: false,
@@ -105,7 +105,7 @@ export const dummyMovies = {
     { 
       id: 4, 
       title: "The Vampire Diaries", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/4XU5Gb4UCMZnRIx2WW7LPHjyn82.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/4XU5Gb4UCMZnRIx2WW7LPHjyn82.jpg")}`, 
       previewUrl: "Vempire_diaries.mp4", 
       isTopTen: false, 
       recentlyAdded: true,
@@ -116,7 +116,7 @@ export const dummyMovies = {
     { 
       id: 5, 
       title: "Lucifer", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/3NpUuvM9t9c7Y8DOZSNCeiGkWG1.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/3NpUuvM9t9c7Y8DOZSNCeiGkWG1.jpg")}`, 
       previewUrl: "Lucifer.mp4", 
       isTopTen: false, 
       recentlyAdded: false,
@@ -127,7 +127,7 @@ export const dummyMovies = {
     { 
       id: 6, 
       title: "Stranger Things", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/uJwQ3xJH36AEfzIR8U5j6jUD0o6.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/uJwQ3xJH36AEfzIR8U5j6jUD0o6.jpg")}`, 
       previewUrl: "Stanger_things.mp4", 
       isTopTen: true, 
       recentlyAdded: true,
@@ -140,7 +140,7 @@ export const dummyMovies = {
     { 
       id: 1, 
       title: "Weak Hero", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/lFa5bQJBuJDX32asXvS4wezC80X.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/lFa5bQJBuJDX32asXvS4wezC80X.jpg")}`, 
       previewUrl: "WeakHero.mp4", 
       isTopTen: true, 
       recentlyAdded: true,
@@ -151,7 +151,7 @@ export const dummyMovies = {
     { 
       id: 2, 
       title: "Resident Playbook", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/qNQmn66YwyvZ7Fu95gMIf4Ifc4y.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/qNQmn66YwyvZ7Fu95gMIf4Ifc4y.jpg")}`, 
       previewUrl: "ResidientBook.mp4", 
       isTopTen: false, 
       recentlyAdded: true,
@@ -162,7 +162,7 @@ export const dummyMovies = {
     { 
       id: 3, 
       title: "Business Proposal", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/3ARq4Fmu6xApIdv5LmKO7W6Zf4R.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/3ARq4Fmu6xApIdv5LmKO7W6Zf4R.jpg")}`, 
       previewUrl: "BusinessProposal.mp4", 
       isTopTen: false, 
       recentlyAdded: false,
@@ -173,7 +173,7 @@ export const dummyMovies = {
     { 
       id: 4, 
       title: "All Of Us Are Dead", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/5wQG7raxg1N6jBNU5nBFXUQVqnQ.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/5wQG7raxg1N6jBNU5nBFXUQVqnQ.jpg")}`, 
       previewUrl: "AllOfUsAreDead.mp4", 
       isTopTen: true, 
       recentlyAdded: false,
@@ -184,7 +184,7 @@ export const dummyMovies = {
     { 
       id: 5, 
       title: "Vincenzo", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/T2Oi1KTOOVhHygBK99yX4QHZg9.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/T2Oi1KTOOVhHygBK99yX4QHZg9.jpg")}`, 
       previewUrl: "Vincenzo.mp4", 
       isTopTen: false, 
       recentlyAdded: true,
@@ -195,7 +195,7 @@ export const dummyMovies = {
     { 
       id: 6, 
       title: "Sakamoto Days", 
-      posterUrl: "https://media.themoviedb.org/t/p/w1000_and_h563_face/2BEocOFPIc1nniZ3l1YVMce91Jd.jpg", 
+      posterUrl: `https://movieadminpanel.onrender.com/api/images?url=${encodeURIComponent("https://media.themoviedb.org/t/p/w1000_and_h563_face/2BEocOFPIc1nniZ3l1YVMce91Jd.jpg")}`, 
       previewUrl: "Sakamotodays.mp4", 
       isTopTen: false, 
       recentlyAdded: true,

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TMDB_API_KEY, TMDB_BASE_URL } from '../config/tmdb';
 import { Play, Info } from 'lucide-react';
 
-// API base URL (local backend)
-const API_BASE_URL = 'http://localhost:5000/api';
+// API base URL (deployed backend)
+const API_BASE_URL = 'https://movieadminpanel.onrender.com/api';
 
 // Custom Netflix Skeleton Animation CSS
 const netflixSkeletonCss = `
@@ -306,7 +306,9 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                   <div className="absolute inset-0 netflix-skeleton"></div>
                 )}
                 <img
-                  src={movie.poster_path ? `https://image.tmdb.org/t/p/w342${movie.poster_path}` : 'https://via.placeholder.com/342x513?text=No+Image'}
+                  src={movie.poster_path 
+                    ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w342${movie.poster_path}`)}` 
+                    : 'https://via.placeholder.com/342x513?text=No+Image'}
                   alt={movie.title}
                   className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 ${posterLoaded ? 'opacity-100' : 'opacity-0'}`}
                   loading="lazy"
@@ -390,9 +392,9 @@ const MovieSuggestionCard = ({ movie, onSelect }) => {
                 )}
                 <img
                   src={movie.backdrop_path 
-                    ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}` 
+                    ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`)}` 
                     : (movie.poster_path 
-                        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` 
+                        ? `http://localhost:5000/api/images?url=${encodeURIComponent(`https://image.tmdb.org/t/p/w780${movie.poster_path}`)}` 
                         : 'https://via.placeholder.com/780x439?text=No+Image')}
                   alt={movie.title}
                   className={`w-full h-full object-cover ${backdropLoaded ? 'opacity-100' : 'opacity-0'}`}
