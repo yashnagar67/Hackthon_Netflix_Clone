@@ -454,16 +454,17 @@ export default function NetflixBanner() {
                 </h1>
                 
                 {/* Action buttons with neon effect */}
-                <div className="flex flex-row gap-3 w-full">
+                <div className="flex flex-row gap-3 w-full text-white">
                   <button 
-                    className="flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-black px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200 mood-button-glow"
+                    className="flex items-center justify-center gap-1.5 bg-white hover:bg-white/90 text-white px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200 mood-button-glow"
                     onClick={handlePlayClick}
                     style={{
                       boxShadow: `0 0 10px rgba(255, 255, 255, 0.5)`,
+                      background: "var(--mood-primary, #e50914)",
                     }}
                   >
-                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
-                    <span>Play</span>
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    <span className="text-white">Play</span>
                   </button>
                   <button 
                     className="flex items-center justify-center gap-1.5 bg-gray-500/40 hover:bg-gray-500/60 text-white px-5 py-2 rounded font-medium text-sm sm:text-base transition-colors duration-200 mood-button-glow"
@@ -473,7 +474,7 @@ export default function NetflixBanner() {
                     }}
                   >
                     <Info className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>More Info</span>
+                    <span className="text-white">More Info</span>
                   </button>
                 </div>
               </div>
@@ -513,13 +514,14 @@ export default function NetflixBanner() {
                 {/* Action buttons with neon effect */}
                 <div className="flex flex-row gap-4 mb-6">
                   <button 
-                    className="flex items-center justify-center gap-2 bg-white hover:bg-white/90 text-black px-8 py-3 rounded font-medium text-lg transition-colors duration-200 mood-button-glow"
+                    className="flex items-center justify-center gap-2 bg-white hover:bg-white/90 text-white px-8 py-3 rounded font-medium text-lg transition-colors duration-200 mood-button-glow"
                     onClick={handlePlayClick}
                     style={{
                       boxShadow: `0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.4)`,
+                      background: "var(--mood-primary, #e50914)",
                     }}
                   >
-                    <Play className="w-6 h-6 text-black" />
+                    <Play className="w-6 h-6 text-white" />
                     <span>Play</span>
                   </button>
                   <button 
