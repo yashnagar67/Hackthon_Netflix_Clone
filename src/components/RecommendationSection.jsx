@@ -309,6 +309,19 @@ const MovieCard = ({ movie }) => {
                 <Volume2 className="w-5 h-5 text-white" />
               )}
             </button>
+            
+            {/* Close button overlay - NEW */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShouldShowPreview(false);
+                setHoveredId(null);
+                if (videoRef.current) videoRef.current.pause();
+              }}
+              className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-colors z-10"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
           </div>
 
           {/* Controls Row */}
